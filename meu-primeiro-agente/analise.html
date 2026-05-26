@@ -1,1217 +1,445 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Análise Semanal — Márcia Capellari</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Dashboard de Tarefas — Aliança Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f0f1a;color:#e2e8f0;min-height:100vh;padding:1.5rem}
 
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #0f0f1a;
-      color: #e2e8f0;
-      min-height: 100vh;
-      padding: 2rem;
-    }
+/* ── HEADER ── */
+header{text-align:center;margin-bottom:1.8rem}
+header h1{font-size:1.8rem;font-weight:700;background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+header p{color:#64748b;font-size:.85rem;margin-top:.3rem}
 
-    header {
-      text-align: center;
-      margin-bottom: 2.5rem;
-    }
-    header h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    header p { color: #94a3b8; margin-top: .4rem; font-size: .95rem; }
+/* ── TABS ── */
+.tab-nav{display:flex;gap:.5rem;margin-bottom:2rem;background:#13131f;border:1px solid #2d2d45;border-radius:14px;padding:.4rem;flex-wrap:wrap}
+.tab-btn{flex:1;min-width:120px;padding:.65rem 1rem;border:none;border-radius:10px;cursor:pointer;font-size:.88rem;font-weight:600;transition:all .2s;background:transparent;color:#64748b;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.tab-btn:hover{background:#1e1e2e;color:#cbd5e1}
+.tab-btn.active{color:#fff}
+.tab-btn.t-marcia.active {background:linear-gradient(135deg,#a78bfa,#818cf8)}
+.tab-btn.t-fernando.active{background:linear-gradient(135deg,#60a5fa,#38bdf8)}
+.tab-btn.t-iasmin.active {background:linear-gradient(135deg,#34d399,#10b981)}
+.tab-btn.t-fabiane.active {background:linear-gradient(135deg,#f472b6,#ec4899)}
+.tab-count{background:#ffffff22;font-size:.72rem;padding:.1rem .45rem;border-radius:10px}
 
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .card {
-      background: #1e1e2e;
-      border-radius: 16px;
-      padding: 1.4rem 1.2rem;
-      border: 1px solid #2d2d45;
-      position: relative;
-      overflow: hidden;
-    }
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-    }
-    .card.total::before  { background: linear-gradient(90deg,#a78bfa,#60a5fa); }
-    .card.urgent::before { background: #ef4444; }
-    .card.import::before { background: #f59e0b; }
-    .card.wait::before   { background: #10b981; }
+.tab-panel{display:none}
+.tab-panel.active{display:block}
 
-    .card .label { font-size: .78rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .4rem; }
-    .card .value { font-size: 2.2rem; font-weight: 800; }
-    .card .sub   { font-size: .82rem; color: #64748b; margin-top: .2rem; }
-    .card.total .value  { color: #a78bfa; }
-    .card.urgent .value { color: #f87171; }
-    .card.import .value { color: #fbbf24; }
-    .card.wait .value   { color: #34d399; }
+/* ── CARDS ── */
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin-bottom:1.8rem}
+.card{background:#1e1e2e;border-radius:14px;padding:1.2rem;border:1px solid #2d2d45;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.card.c1::before{background:linear-gradient(90deg,#a78bfa,#60a5fa)}
+.card.c2::before{background:#ef4444}
+.card.c3::before{background:#f59e0b}
+.card.c4::before{background:#10b981}
+.card .label{font-size:.72rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem}
+.card .value{font-size:2rem;font-weight:800}
+.card .sub{font-size:.78rem;color:#64748b;margin-top:.15rem}
+.card.c1 .value{color:#a78bfa}.card.c2 .value{color:#f87171}
+.card.c3 .value{color:#fbbf24}.card.c4 .value{color:#34d399}
 
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #cbd5e1;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-    }
-    .section-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: #2d2d45;
-    }
+/* ── CHARTS ── */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.2rem;margin-bottom:1.8rem}
+.chart-card{background:#1e1e2e;border:1px solid #2d2d45;border-radius:14px;padding:1.2rem}
+.chart-card h3{font-size:.78rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.9rem}
+.chart-wrap{position:relative;height:200px}
 
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    .chart-card {
-      background: #1e1e2e;
-      border: 1px solid #2d2d45;
-      border-radius: 16px;
-      padding: 1.4rem;
-    }
-    .chart-card h3 { font-size: .9rem; color: #94a3b8; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: .05em; }
-    .chart-wrapper { position: relative; height: 220px; }
+/* ── SECTION TITLE ── */
+.stitle{font-size:1rem;font-weight:600;color:#cbd5e1;margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem}
+.stitle::after{content:'';flex:1;height:1px;background:#2d2d45}
 
-    /* TODAY */
-    .today-block {
-      background: #1e1e2e;
-      border: 1px solid #2d2d45;
-      border-radius: 16px;
-      padding: 1.4rem;
-      margin-bottom: 2rem;
-    }
-    .today-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.2rem;
-    }
-    .today-header .date-badge {
-      background: linear-gradient(135deg,#a78bfa22,#60a5fa22);
-      border: 1px solid #a78bfa44;
-      color: #a78bfa;
-      padding: .3rem .8rem;
-      border-radius: 20px;
-      font-size: .8rem;
-      font-weight: 600;
-    }
-    .today-header .load-badge {
-      color: #94a3b8;
-      font-size: .85rem;
-    }
+/* ── KANBAN ── */
+.update-dashboard{background:#1e1e2e;border:1px solid #2d2d45;border-radius:14px;padding:1.4rem;margin-bottom:1.8rem}
+.db-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.8rem}
+.db-header h2{font-size:.95rem;color:#e2e8f0;font-weight:600}
+.open-notion-btn{display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#a78bfa,#60a5fa);color:#fff;font-weight:600;font-size:.82rem;padding:.45rem 1rem;border-radius:9px;text-decoration:none;transition:opacity .2s,transform .1s}
+.open-notion-btn:hover{opacity:.85;transform:translateY(-1px)}
+.filter-bar{display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap}
+.filter-btn{background:#16213e;border:1px solid #2d2d45;color:#94a3b8;font-size:.76rem;padding:.3rem .75rem;border-radius:20px;cursor:pointer;transition:all .2s}
+.filter-btn:hover,.filter-btn.active{background:#a78bfa22;border-color:#a78bfa66;color:#a78bfa}
+.kanban-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+.kanban-col{background:#13131f;border:1px solid #2d2d45;border-radius:12px;padding:1rem}
+.kanban-col-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem}
+.kanban-col-header span{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.col-todo .kanban-col-header span{color:#f87171}
+.col-doing .kanban-col-header span{color:#fbbf24}
+.col-done .kanban-col-header span{color:#34d399}
+.kanban-count{background:#1e2535;color:#94a3b8;font-size:.7rem;font-weight:700;padding:.12rem .45rem;border-radius:10px}
+.kanban-card{background:#1e1e2e;border:1px solid #2d2d45;border-radius:10px;padding:.75rem;margin-bottom:.55rem;transition:border-color .2s,transform .15s}
+.kanban-card:hover{border-color:#a78bfa66;transform:translateY(-2px)}
+.kanban-card.hidden{display:none}
+.kcard-title{font-size:.82rem;color:#e2e8f0;margin-bottom:.45rem;line-height:1.4}
+.kcard-note{font-size:.73rem;color:#64748b;margin:.4rem 0 0;line-height:1.45}
+.kcard-meta{display:flex;gap:.35rem;flex-wrap:wrap;align-items:center}
+.kcard-actions{display:flex;gap:.35rem;margin-top:.65rem;border-top:1px solid #2d2d45;padding-top:.55rem}
+.action-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:.25rem;font-size:.7rem;font-weight:600;padding:.3rem .45rem;border-radius:7px;text-decoration:none;border:none;cursor:pointer;transition:opacity .2s}
+.action-btn:hover{opacity:.8}
+.btn-open{background:#1e2a45;color:#60a5fa}
+.btn-doing{background:#78350f44;color:#fbbf24}
+.btn-done{background:#064e3b44;color:#34d399}
+.badge{font-size:.7rem;padding:.18rem .5rem;border-radius:20px;font-weight:500;white-space:nowrap}
+.badge.time{background:#1e293b;color:#94a3b8}
+.badge.area{background:#1e2a45;color:#60a5fa}
+.badge.tag-u{background:#7f1d1d;color:#fca5a5}
+.badge.tag-i{background:#78350f;color:#fde68a}
+.badge.tag-w{background:#064e3b;color:#6ee7b7}
+.badge.tag-a{background:#4c1d95;color:#c4b5fd}
+.badge.tag-f{background:#831843;color:#fbcfe8}
+.pip{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block}
+.placeholder-empty{color:#475569;font-size:.8rem;text-align:center;padding:1.4rem 0}
 
-    .task-row {
-      display: flex;
-      align-items: center;
-      gap: .8rem;
-      padding: .7rem .9rem;
-      border-radius: 10px;
-      margin-bottom: .5rem;
-      background: #16213e;
-      border-left: 3px solid transparent;
-      transition: background .2s;
-    }
-    .task-row:hover { background: #1e2a45; }
-    .task-row.urgent { border-left-color: #ef4444; }
-    .task-row.import { border-left-color: #f59e0b; }
-    .task-row.wait   { border-left-color: #10b981; }
+/* ── TODAY BLOCK ── */
+.today-block{background:#1e1e2e;border:1px solid #2d2d45;border-radius:14px;padding:1.3rem;margin-bottom:1.8rem}
+.today-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
+.date-badge{background:linear-gradient(135deg,#a78bfa22,#60a5fa22);border:1px solid #a78bfa44;color:#a78bfa;padding:.28rem .75rem;border-radius:20px;font-size:.78rem;font-weight:600}
+.task-row{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border-radius:9px;margin-bottom:.4rem;background:#16213e;border-left:3px solid transparent;transition:background .2s}
+.task-row:hover{background:#1e2a45}
+.task-row.urgent{border-left-color:#ef4444}
+.task-row.import{border-left-color:#f59e0b}
+.task-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.urgent .task-dot{background:#ef4444}.import .task-dot{background:#f59e0b}
+.task-title{flex:1;font-size:.85rem;color:#e2e8f0}
+.task-meta{display:flex;gap:.4rem;align-items:center;flex-wrap:wrap}
+.task-link{color:#475569;font-size:.73rem;text-decoration:none;transition:color .2s}
+.task-link:hover{color:#a78bfa}
 
-    .task-dot {
-      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-    }
-    .urgent .task-dot { background: #ef4444; }
-    .import .task-dot { background: #f59e0b; }
-    .wait   .task-dot { background: #10b981; }
+/* ── INSIGHTS ── */
+.insight-card{background:linear-gradient(135deg,#1a1a35,#1e2a3a);border:1px solid #a78bfa33;border-radius:14px;padding:1.3rem 1.5rem;margin-bottom:1.8rem}
+.insight-card h3{color:#a78bfa;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.7rem}
+.insight-card ul{list-style:none;display:flex;flex-direction:column;gap:.45rem}
+.insight-card li{font-size:.85rem;color:#cbd5e1;padding-left:1.1rem;position:relative}
+.insight-card li::before{content:'→';position:absolute;left:0;color:#a78bfa}
 
-    .task-title { flex: 1; font-size: .88rem; color: #e2e8f0; }
-    .task-meta  { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+/* ── LOAD BARS ── */
+.day-bars{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.8rem;margin-bottom:1.8rem}
+.day-bar-card{background:#1e1e2e;border:1px solid #2d2d45;border-radius:12px;padding:.9rem}
+.day-bar-card.today{border-color:#a78bfa44}
+.day-bar-card .day-name{font-size:.73rem;color:#94a3b8;margin-bottom:.5rem;font-weight:600;text-transform:uppercase}
+.day-bar-card.today .day-name{color:#a78bfa}
+.day-bar-card .day-load{font-size:1.2rem;font-weight:700;color:#e2e8f0;margin-bottom:.4rem}
+.bar-track{background:#0f172a;border-radius:4px;height:5px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px}
 
-    .badge {
-      font-size: .72rem;
-      padding: .2rem .55rem;
-      border-radius: 20px;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-    .badge.time   { background: #1e293b; color: #94a3b8; }
-    .badge.area   { background: #1e2a45; color: #60a5fa; }
-    .badge.tag-u  { background: #7f1d1d; color: #fca5a5; }
-    .badge.tag-i  { background: #78350f; color: #fde68a; }
-    .badge.tag-w  { background: #064e3b; color: #6ee7b7; }
+/* ── WEEK TABLE ── */
+.week-table-wrap{background:#1e1e2e;border:1px solid #2d2d45;border-radius:14px;padding:1.3rem;margin-bottom:1.8rem;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead th{text-align:left;padding:.55rem .75rem;color:#64748b;font-weight:600;font-size:.73rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #2d2d45}
+tbody tr{border-bottom:1px solid #1e2535}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#16213e}
+tbody td{padding:.6rem .75rem;color:#cbd5e1;vertical-align:middle}
+tbody td a{color:#60a5fa;text-decoration:none;font-size:.75rem}
+tbody td a:hover{text-decoration:underline}
 
-    .task-link {
-      color: #475569;
-      font-size: .75rem;
-      text-decoration: none;
-      transition: color .2s;
-    }
-    .task-link:hover { color: #a78bfa; }
-
-    /* WEEK TABLE */
-    .week-table-wrap {
-      background: #1e1e2e;
-      border: 1px solid #2d2d45;
-      border-radius: 16px;
-      padding: 1.4rem;
-      margin-bottom: 2rem;
-      overflow-x: auto;
-    }
-    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
-    thead th {
-      text-align: left;
-      padding: .6rem .8rem;
-      color: #64748b;
-      font-weight: 600;
-      font-size: .75rem;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-      border-bottom: 1px solid #2d2d45;
-    }
-    tbody tr { border-bottom: 1px solid #1e2535; }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: #16213e; }
-    tbody td { padding: .65rem .8rem; color: #cbd5e1; vertical-align: middle; }
-    tbody td a { color: #60a5fa; text-decoration: none; font-size: .78rem; }
-    tbody td a:hover { text-decoration: underline; }
-
-    /* DAILY LOAD */
-    .day-bars {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .day-bar-card {
-      background: #1e1e2e;
-      border: 1px solid #2d2d45;
-      border-radius: 12px;
-      padding: 1rem;
-    }
-    .day-bar-card .day-name { font-size: .78rem; color: #94a3b8; margin-bottom: .6rem; font-weight: 600; text-transform: uppercase; }
-    .day-bar-card .day-load { font-size: 1.3rem; font-weight: 700; color: #e2e8f0; margin-bottom: .5rem; }
-    .bar-track { background: #0f172a; border-radius: 4px; height: 6px; overflow: hidden; }
-    .bar-fill  { height: 100%; border-radius: 4px; transition: width .6s ease; }
-    .day-bar-card.today { border-color: #a78bfa44; }
-    .day-bar-card.today .day-name { color: #a78bfa; }
-
-    /* INSIGHT */
-    .insight-card {
-      background: linear-gradient(135deg, #1a1a35, #1e2a3a);
-      border: 1px solid #a78bfa33;
-      border-radius: 16px;
-      padding: 1.4rem 1.6rem;
-      margin-bottom: 2rem;
-    }
-    .insight-card h3 { color: #a78bfa; font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .8rem; }
-    .insight-card ul { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
-    .insight-card li { font-size: .88rem; color: #cbd5e1; padding-left: 1.2rem; position: relative; }
-    .insight-card li::before { content: '→'; position: absolute; left: 0; color: #a78bfa; }
-
-    footer {
-      text-align: center;
-      color: #334155;
-      font-size: .78rem;
-      margin-top: 1rem;
-    }
-
-    /* DASHBOARD DE ATUALIZAÇÃO */
-    .update-dashboard {
-      background: #1e1e2e;
-      border: 1px solid #2d2d45;
-      border-radius: 16px;
-      padding: 1.6rem;
-      margin-bottom: 2rem;
-    }
-    .update-dashboard .db-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.2rem;
-      flex-wrap: wrap;
-      gap: .8rem;
-    }
-    .update-dashboard .db-header h2 {
-      font-size: 1rem;
-      color: #e2e8f0;
-      font-weight: 600;
-    }
-    .open-notion-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      background: linear-gradient(135deg, #a78bfa, #60a5fa);
-      color: #fff;
-      font-weight: 600;
-      font-size: .85rem;
-      padding: .5rem 1.1rem;
-      border-radius: 10px;
-      text-decoration: none;
-      transition: opacity .2s, transform .1s;
-    }
-    .open-notion-btn:hover { opacity: .88; transform: translateY(-1px); }
-
-    .filter-bar {
-      display: flex;
-      gap: .5rem;
-      margin-bottom: 1.2rem;
-      flex-wrap: wrap;
-    }
-    .filter-btn {
-      background: #16213e;
-      border: 1px solid #2d2d45;
-      color: #94a3b8;
-      font-size: .78rem;
-      padding: .35rem .8rem;
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all .2s;
-    }
-    .filter-btn:hover, .filter-btn.active { background: #a78bfa22; border-color: #a78bfa66; color: #a78bfa; }
-    .filter-btn.f-urgent.active  { background: #ef444422; border-color: #ef444466; color: #f87171; }
-    .filter-btn.f-import.active  { background: #f59e0b22; border-color: #f59e0b66; color: #fbbf24; }
-    .filter-btn.f-wait.active    { background: #10b98122; border-color: #10b98166; color: #34d399; }
-
-    .kanban-board {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1rem;
-    }
-    .kanban-col {
-      background: #13131f;
-      border: 1px solid #2d2d45;
-      border-radius: 12px;
-      padding: 1rem;
-    }
-    .kanban-col-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: .9rem;
-    }
-    .kanban-col-header span { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
-    .kanban-count {
-      background: #1e2535;
-      color: #94a3b8;
-      font-size: .72rem;
-      font-weight: 700;
-      padding: .15rem .5rem;
-      border-radius: 10px;
-    }
-    .col-todo    .kanban-col-header span { color: #f87171; }
-    .col-doing   .kanban-col-header span { color: #fbbf24; }
-    .col-done    .kanban-col-header span { color: #34d399; }
-
-    .kanban-card {
-      background: #1e1e2e;
-      border: 1px solid #2d2d45;
-      border-radius: 10px;
-      padding: .8rem;
-      margin-bottom: .6rem;
-      cursor: pointer;
-      transition: border-color .2s, transform .15s;
-      position: relative;
-    }
-    .kanban-card:hover { border-color: #a78bfa66; transform: translateY(-2px); }
-    .kanban-card.hidden { display: none; }
-
-    .kcard-title { font-size: .84rem; color: #e2e8f0; margin-bottom: .5rem; line-height: 1.4; }
-    .kcard-meta  { display: flex; gap: .4rem; flex-wrap: wrap; align-items: center; }
-
-    .kcard-actions {
-      display: flex;
-      gap: .4rem;
-      margin-top: .7rem;
-      border-top: 1px solid #2d2d45;
-      padding-top: .6rem;
-    }
-    .action-btn {
-      flex: 1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: .3rem;
-      font-size: .72rem;
-      font-weight: 600;
-      padding: .35rem .5rem;
-      border-radius: 7px;
-      text-decoration: none;
-      transition: opacity .2s;
-      border: none;
-      cursor: pointer;
-    }
-    .action-btn:hover { opacity: .8; }
-    .btn-open   { background: #1e2a45; color: #60a5fa; }
-    .btn-doing  { background: #78350f44; color: #fbbf24; }
-    .btn-done   { background: #064e3b44; color: #34d399; }
-
-    .priority-pip {
-      width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; display: inline-block;
-    }
-  </style>
+footer{text-align:center;color:#334155;font-size:.75rem;margin-top:1rem;padding-top:1rem;border-top:1px solid #1e2535}
+</style>
 </head>
 <body>
 
 <header>
-  <h1>📊 Análise Semanal — Márcia Capellari</h1>
-  <p>Semana 26–31 de Maio de 2026 &nbsp;·&nbsp; Tríade do Tempo (Christian Barbosa) &nbsp;·&nbsp; Fonte: Notion</p>
+  <h1>📊 Dashboard de Tarefas — Aliança Hub</h1>
+  <p>Semana 26–31 de Maio de 2026 &nbsp;·&nbsp; Fonte: Notion &nbsp;·&nbsp; Metodologia: Tríade do Tempo</p>
 </header>
 
-<!-- CARDS SUMÁRIO -->
-<div class="grid-4">
-  <div class="card total">
-    <div class="label">Total de tarefas</div>
-    <div class="value">14</div>
-    <div class="sub">Todas "A fazer"</div>
+<!-- ── TAB NAV ── -->
+<nav class="tab-nav">
+  <button class="tab-btn t-marcia active"   onclick="switchTab('marcia',this)">  👩‍💼 Márcia   <span class="tab-count">14</span></button>
+  <button class="tab-btn t-fernando"         onclick="switchTab('fernando',this)">🗂️ Fernando  <span class="tab-count">5</span></button>
+  <button class="tab-btn t-iasmin"           onclick="switchTab('iasmin',this)">  ✅ Iasmin    <span class="tab-count">4</span></button>
+  <button class="tab-btn t-fabiane"          onclick="switchTab('fabiane',this)">  🏛️ Fabiane   <span class="tab-count">3</span></button>
+</nav>
+
+<!-- ════════════════════════════════════
+     ABA 1 — MÁRCIA
+     ════════════════════════════════════ -->
+<div id="tab-marcia" class="tab-panel active">
+  <div class="grid-4">
+    <div class="card c1"><div class="label">Total</div><div class="value">14</div><div class="sub">Todas "A fazer"</div></div>
+    <div class="card c2"><div class="label">🔴 Urgentes</div><div class="value">4</div><div class="sub">2h 35min · 18%</div></div>
+    <div class="card c3"><div class="label">🟡 Importantes</div><div class="value">7</div><div class="sub">10h 00min · 71%</div></div>
+    <div class="card c4"><div class="label">🟢 Podem Esperar</div><div class="value">3</div><div class="sub">1h 25min · 11%</div></div>
   </div>
-  <div class="card urgent">
-    <div class="label">🔴 Urgentes</div>
-    <div class="value">4</div>
-    <div class="sub">2h 35min · 18%</div>
+
+  <div class="grid-2">
+    <div class="chart-card"><h3>Tríade do Tempo — Carga</h3><div class="chart-wrap"><canvas id="chartM1"></canvas></div></div>
+    <div class="chart-card"><h3>Tarefas por Área</h3><div class="chart-wrap"><canvas id="chartM2"></canvas></div></div>
   </div>
-  <div class="card import">
-    <div class="label">🟡 Importantes</div>
-    <div class="value">7</div>
-    <div class="sub">10h 00min · 71%</div>
+
+  <div class="stitle">📅 Hoje — Terça, 26 de Maio</div>
+  <div class="today-block">
+    <div class="today-header">
+      <span class="date-badge">Terça-feira · 26/05/2026</span>
+      <span style="color:#94a3b8;font-size:.83rem">⏱ Carga estimada: <strong>2h 05min</strong></span>
+    </div>
+    <div class="task-row urgent"><span class="task-dot"></span><span class="task-title">Dar os encaminhamentos sobre a reunião do conselho</span><div class="task-meta"><span class="badge time">45min</span><span class="badge tag-u">Urgente</span><a class="task-link" href="https://www.notion.so/7b6082806a8f4245b06bd603c2db2c70?pvs=1" target="_blank">↗</a></div></div>
+    <div class="task-row urgent"><span class="task-dot"></span><span class="task-title">Cobrar do Fernando: PDI e plano de atividades da Ana</span><div class="task-meta"><span class="badge time">20min</span><span class="badge tag-u">Urgente</span><a class="task-link" href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">↗</a></div></div>
+    <div class="task-row urgent"><span class="task-dot"></span><span class="task-title">Conversar com Fernando sobre as atividades e entregas da Ana</span><div class="task-meta"><span class="badge time">30min</span><span class="badge tag-u">Urgente</span><a class="task-link" href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">↗</a></div></div>
+    <div class="task-row import"><span class="task-dot"></span><span class="task-title">Agendar reunião BE8 e Cotrijal com PIT</span><div class="task-meta"><span class="badge time">30min</span><span class="badge tag-i">Importante</span><a class="task-link" href="https://www.notion.so/8496980537ac456796ee20e53f6ebfee?pvs=1" target="_blank">↗</a></div></div>
   </div>
-  <div class="card wait">
-    <div class="label">🟢 Podem Esperar</div>
-    <div class="value">3</div>
-    <div class="sub">1h 25min · 11%</div>
+
+  <div class="stitle">🚀 Dashboard — Tarefas de Márcia</div>
+  <div class="update-dashboard">
+    <div class="db-header">
+      <h2>Atualize os status direto no Notion</h2>
+      <a class="open-notion-btn" href="https://www.notion.so/cf9c53c195b748428114a0fe7dde2dc3" target="_blank">↗ Base Márcia no Notion</a>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterBoard('m','all',this)">Todas (14)</button>
+      <button class="filter-btn" onclick="filterBoard('m','urgent',this)">🔴 Urgentes (4)</button>
+      <button class="filter-btn" onclick="filterBoard('m','import',this)">🟡 Importantes (7)</button>
+      <button class="filter-btn" onclick="filterBoard('m','wait',this)">🟢 Podem Esperar (3)</button>
+    </div>
+    <div class="kanban-board">
+      <div class="kanban-col col-todo" id="m-todo">
+        <div class="kanban-col-header"><span>⬜ A Fazer</span><span class="kanban-count" id="mcnt-todo">14</span></div>
+        <!-- URGENTES -->
+        <div class="kanban-card" data-board="m" data-cat="urgent"><div class="kcard-title">Dar os encaminhamentos sobre a reunião do conselho</div><div class="kcard-meta"><span class="pip" style="background:#ef4444"></span><span class="badge time">45min</span><span class="badge area">Pessoal</span><span class="badge tag-u">Urgente</span></div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/7b6082806a8f4245b06bd603c2db2c70?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'m-doing','mcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'m-done','mcnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="m" data-cat="urgent"><div class="kcard-title">Cobrar do Fernando: PDI e plano de atividades da Ana</div><div class="kcard-meta"><span class="pip" style="background:#ef4444"></span><span class="badge time">20min</span><span class="badge area">Pessoal</span><span class="badge tag-u">Urgente</span></div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'m-doing','mcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'m-done','mcnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="m" data-cat="urgent"><div class="kcard-title">Conversar com Fernando sobre as atividades e entregas da Ana</div><div class="kcard-meta"><span class="pip" style="background:#ef4444"></span><span class="badge time">30min</span><span class="badge area">Pessoal</span><span class="badge tag-u">Urgente</span></div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'m-doing','mcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'m-done','mcnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="m" data-cat="urgent"><div class="kcard-title">Revisão cirurgia boca</div><div class="kcard-meta"><span class="pip" style="background:#ef4444"></span><span class="badge time">1h</span><span class="badge area">Saúde</span><span class="badge tag-u">Urgente</span></div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/06aef5e5089b475fbcb6550c45f8afd6?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'m-doing','mcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'m-done','mcnt')">✓ Concluída</button></div></div>
+        <!-- IMPORTANTES -->
+        <div class="kanban-card" data-board="m" data-cat="import"><div class="kcard-title">Agendar reunião BE8 e Cotrijal com PIT</div><div class="kcard-meta"><span class="pip" style="background:#f59e0b"></span><span class="badge time">30min</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span></div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/8496980537ac456796ee20e53f6ebfee?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'m-doing','mcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'m-done','mcnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="m" data-cat="import"><div class="kcard-title">Falar com Janete — expansão RS</div><div class="kcard-meta"><span class="pip" style="background:#f59e0b"></span><span class="badge time">30min</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span></div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/8842341e1fc84ad0946f0a21e418f7af?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'m-doing','mcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'m-done','mcnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="m" data-cat="import"><div class="kcard-title">Ler o material dos processos elaborados pela Elvira</div><div class="kcard-meta"><span class="pip" style="background:#f59e0b"></span><span class="badge time">1h</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span></div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/9ff59c17d3dd420fa5c2e31fdca389f9?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'m-doing','mcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'m-done','mcnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="m" data-cat="import"><div class="kcard-title">Consulta psiquiatra</div><div class="kcard-meta"><span class="pip" style="background:#f59e0b"></span><span class="badge time">1h</span><span class="badge area">Saúde</span><span class="badge tag-i">Importante</span></div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/0ed35494c21b4f4e841d4c081c6328cf?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'m-doing','mcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'m-done','mcnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="m" data-cat="import"><div class="kcard-title">Exames e revisão médica</div><div class="kcard-meta"><span class="pip" style="background:#f59e0b"></span><span class="badge time">2h</span><span class="badge area">Saúde</span><span class="badge tag-i">Importante</span></div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/5d03134317f04a52a2dbad0c1ec5635b?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'m-doing','mcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'m-done','mcnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="m" data-cat="import"><div class="kcard-title">Treinamento das pessoas/embaixadoras da marca</div><div class="kcard-meta"><span class="pip" style="background:#f59e0b"></span><span class="badge time">2h</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span></div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/daf0f839ccdc4e6692fcb2a1babf5e1a?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'m-doing','mcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'m-done','mcnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="m" data-cat="import"><div class="kcard-title">Construir relatório de impacto do Instituto</div><div class="kcard-meta"><span class="pip" style="background:#f59e0b"></span><span class="badge time">3h</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span></div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/e5f7752aad6a4f00ba83b1f6c4ac3d2c?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'m-doing','mcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'m-done','mcnt')">✓ Concluída</button></div></div>
+        <!-- PODEM ESPERAR -->
+        <div class="kanban-card" data-board="m" data-cat="wait"><div class="kcard-title">Carteira de identidade do Pedro</div><div class="kcard-meta"><span class="pip" style="background:#10b981"></span><span class="badge time">1h</span><span class="badge area">Família</span><span class="badge tag-w">Pode Esperar</span></div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/91a146420eb64fb8829330391dfffb04?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'m-doing','mcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'m-done','mcnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="m" data-cat="wait"><div class="kcard-title">Agendar dermatologista</div><div class="kcard-meta"><span class="pip" style="background:#10b981"></span><span class="badge time">15min</span><span class="badge area">Saúde</span><span class="badge tag-w">Pode Esperar</span></div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/9de01b3d16414d8e8563d1a5c9fc4f75?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'m-doing','mcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'m-done','mcnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="m" data-cat="wait"><div class="kcard-title">Agendar depilação</div><div class="kcard-meta"><span class="pip" style="background:#10b981"></span><span class="badge time">10min</span><span class="badge area">Pessoal</span><span class="badge tag-w">Pode Esperar</span></div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/49256cb3505e4737ad5598485f4d11bf?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'m-doing','mcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'m-done','mcnt')">✓ Concluída</button></div></div>
+      </div>
+      <div class="kanban-col col-doing" id="m-doing"><div class="kanban-col-header"><span>🟡 Em Andamento</span><span class="kanban-count" id="mcnt-doing">0</span></div><div class="placeholder-empty" id="m-doing-ph">Nenhuma tarefa em andamento</div></div>
+      <div class="kanban-col col-done"  id="m-done"> <div class="kanban-col-header"><span>✅ Concluídas</span><span class="kanban-count" id="mcnt-done">0</span></div><div class="placeholder-empty" id="m-done-ph">Nenhuma tarefa concluída</div></div>
+    </div>
+  </div>
+
+  <div class="stitle">⚡ Carga por Dia</div>
+  <div class="day-bars">
+    <div class="day-bar-card today"><div class="day-name">Ter 26/05</div><div class="day-load">2h 05min</div><div class="bar-track"><div class="bar-fill" style="width:32%;background:linear-gradient(90deg,#a78bfa,#818cf8)"></div></div></div>
+    <div class="day-bar-card"><div class="day-name">Qua 27/05</div><div class="day-load">2h 30min</div><div class="bar-track"><div class="bar-fill" style="width:39%;background:linear-gradient(90deg,#60a5fa,#38bdf8)"></div></div></div>
+    <div class="day-bar-card"><div class="day-name">Qui 28/05</div><div class="day-load">3h 00min</div><div class="bar-track"><div class="bar-fill" style="width:47%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div></div>
+    <div class="day-bar-card"><div class="day-name">Sex 29/05</div><div class="day-load">6h 25min</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:linear-gradient(90deg,#ef4444,#f97316)"></div></div></div>
+    <div class="day-bar-card"><div class="day-name">TOTAL</div><div class="day-load" style="color:#a78bfa">14h 00min</div><div class="bar-track"><div class="bar-fill" style="width:100%;background:linear-gradient(90deg,#a78bfa,#34d399)"></div></div></div>
+  </div>
+
+  <div class="stitle">💡 Insights Tríade do Tempo</div>
+  <div class="insight-card">
+    <h3>Análise — Christian Barbosa</h3>
+    <ul>
+      <li>Semana com <strong>71% de tarefas Importantes</strong> — exatamente na meta ideal da Tríade (70/20/10).</li>
+      <li>4 tarefas <strong>Urgentes (18%)</strong> são follow-ups reativos — idealmente delegáveis ou antecipáveis.</li>
+      <li><strong>Nenhuma tarefa tem prazo definido</strong> no Notion — adicionar datas aumenta a previsibilidade.</li>
+      <li>Sexta-feira está <strong>sobrecarregada (6h25min)</strong> — considere antecipar o relatório do Instituto para quinta.</li>
+      <li>Área de <strong>Saúde concentra 4 tarefas</strong> — não postergue mais.</li>
+    </ul>
   </div>
 </div>
 
-<!-- GRÁFICOS -->
-<div class="section-title">📈 Análise Visual</div>
-<div class="grid-2">
-  <div class="chart-card">
-    <h3>Tríade do Tempo — Distribuição de Carga</h3>
-    <div class="chart-wrapper">
-      <canvas id="chartTriade"></canvas>
+<!-- ════════════════════════════════════
+     ABA 2 — FERNANDO
+     ════════════════════════════════════ -->
+<div id="tab-fernando" class="tab-panel">
+  <div class="grid-4">
+    <div class="card c1"><div class="label">Total delegado</div><div class="value">5</div><div class="sub">Todos "A fazer"</div></div>
+    <div class="card c2"><div class="label">📋 Tarefas</div><div class="value">3</div><div class="sub">Ações a executar</div></div>
+    <div class="card c3"><div class="label">💬 Assuntos</div><div class="value">2</div><div class="sub">Pautas a discutir</div></div>
+    <div class="card c4"><div class="label">✅ Concluídas</div><div class="value">0</div><div class="sub">Nenhuma ainda</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="chart-card"><h3>Tipo de Item — Fernando</h3><div class="chart-wrap"><canvas id="chartF1"></canvas></div></div>
+    <div class="chart-card"><h3>Cobranças pendentes de Márcia</h3><div class="chart-wrap"><canvas id="chartF2"></canvas></div></div>
+  </div>
+  <div class="stitle">🚀 Dashboard — Delegações para Fernando</div>
+  <div class="update-dashboard">
+    <div class="db-header"><h2>Acompanhe e atualize cada item</h2><a class="open-notion-btn" href="https://www.notion.so/5db170c651df4054812185194e225c66" target="_blank">↗ Base Fernando no Notion</a></div>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterBoard('f','all',this)">Todos (5)</button>
+      <button class="filter-btn" onclick="filterBoard('f','tarefa',this)">📋 Tarefas (3)</button>
+      <button class="filter-btn" onclick="filterBoard('f','assunto',this)">💬 Assuntos (2)</button>
     </div>
-  </div>
-  <div class="chart-card">
-    <h3>Tarefas por Área de Vida</h3>
-    <div class="chart-wrapper">
-      <canvas id="chartArea"></canvas>
+    <div class="kanban-board">
+      <div class="kanban-col col-todo" id="f-todo">
+        <div class="kanban-col-header"><span>⬜ A Fazer</span><span class="kanban-count" id="fcnt-todo">5</span></div>
+        <div class="kanban-card" data-board="f" data-cat="tarefa"><div class="kcard-title">Elaborar rituais com o time</div><div class="kcard-meta"><span class="pip" style="background:#ef4444"></span><span class="badge tag-u">📋 Tarefa</span><span class="badge area">Gestão de Time</span></div><div class="kcard-note">Definir rituais recorrentes: daily, 1:1, retro mensal — com pauta, dono e forma de registro.</div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/bfe316af334c4e8c83f6880c4a5fbcbb?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'f-doing','fcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'f-done','fcnt')">✓ Feito</button></div></div>
+        <div class="kanban-card" data-board="f" data-cat="tarefa"><div class="kcard-title">Squad endomkt da marca: incluir Milena + Propósito nas próximas reuniões</div><div class="kcard-meta"><span class="pip" style="background:#ef4444"></span><span class="badge tag-u">📋 Tarefa</span><span class="badge area">Comunicação</span></div><div class="kcard-note">Incluir Milena nos convites e inserir "Propósito" como tópico fixo de pauta.</div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/5fc8ef676941490bb3da5ae316d381f7?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'f-doing','fcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'f-done','fcnt')">✓ Feito</button></div></div>
+        <div class="kanban-card" data-board="f" data-cat="tarefa"><div class="kcard-title">Ações de comunicação (plano + rotina)</div><div class="kcard-meta"><span class="pip" style="background:#ef4444"></span><span class="badge tag-u">📋 Tarefa</span><span class="badge area">Comunicação</span></div><div class="kcard-note">Plano editorial + rotina: 1 post/semana, 1 newsletter quinzenal, revisão 30min/semana.</div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/edac6c1162154d3cad88d4a90f46a3ab?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'f-doing','fcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'f-done','fcnt')">✓ Feito</button></div></div>
+        <div class="kanban-card" data-board="f" data-cat="assunto"><div class="kcard-title">Uso do NOOT nas reuniões</div><div class="kcard-meta"><span class="pip" style="background:#f59e0b"></span><span class="badge tag-i">💬 Assunto</span><span class="badge area">Processos</span></div><div class="kcard-note">Pauta sugerida de reunião com uso do NOOT como apoio — não como roteiro.</div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/71ca905a0f62468ab779e41e93d3797f?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'f-doing','fcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'f-done','fcnt')">✓ Feito</button></div></div>
+        <div class="kanban-card" data-board="f" data-cat="assunto"><div class="kcard-title">Combinado com Fabi e Iasmin: ao terminar reuniões, enviar a ata imediatamente</div><div class="kcard-meta"><span class="pip" style="background:#f59e0b"></span><span class="badge tag-i">💬 Assunto</span><span class="badge area">Processos</span></div><div class="kcard-note">Acordo operacional: ata em até 10min após reunião, com decisões, responsáveis e prazos.</div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/9d3907ad5ba04db7899a14b4749f2353?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'f-doing','fcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'f-done','fcnt')">✓ Feito</button></div></div>
+      </div>
+      <div class="kanban-col col-doing" id="f-doing"><div class="kanban-col-header"><span>🟡 Em Andamento</span><span class="kanban-count" id="fcnt-doing">0</span></div><div class="placeholder-empty" id="f-doing-ph">Nenhum item em andamento</div></div>
+      <div class="kanban-col col-done"  id="f-done"> <div class="kanban-col-header"><span>✅ Feito</span><span class="kanban-count" id="fcnt-done">0</span></div><div class="placeholder-empty" id="f-done-ph">Nenhum item concluído</div></div>
     </div>
-  </div>
-</div>
-
-<!-- HOJE -->
-<div class="section-title">📅 Hoje — Terça, 26 de Maio</div>
-<div class="today-block">
-  <div class="today-header">
-    <span class="date-badge">Terça-feira · 26/05/2026</span>
-    <span class="load-badge">⏱ Carga estimada: <strong>2h 05min</strong></span>
-  </div>
-
-  <div class="task-row urgent">
-    <span class="task-dot"></span>
-    <span class="task-title">Dar os encaminhamentos sobre a reunião do conselho</span>
-    <div class="task-meta">
-      <span class="badge time">45min</span>
-      <span class="badge area">Pessoal</span>
-      <span class="badge tag-u">Urgente</span>
-      <a class="task-link" href="https://www.notion.so/7b6082806a8f4245b06bd603c2db2c70?pvs=1" target="_blank">↗ Notion</a>
-    </div>
-  </div>
-
-  <div class="task-row urgent">
-    <span class="task-dot"></span>
-    <span class="task-title">Cobrar do Fernando: PDI e plano de atividades da Ana</span>
-    <div class="task-meta">
-      <span class="badge time">20min</span>
-      <span class="badge area">Pessoal</span>
-      <span class="badge tag-u">Urgente</span>
-      <a class="task-link" href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">↗ Notion</a>
-    </div>
-  </div>
-
-  <div class="task-row urgent">
-    <span class="task-dot"></span>
-    <span class="task-title">Conversar com Fernando sobre as atividades e entregas da Ana</span>
-    <div class="task-meta">
-      <span class="badge time">30min</span>
-      <span class="badge area">Pessoal</span>
-      <span class="badge tag-u">Urgente</span>
-      <a class="task-link" href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">↗ Notion</a>
-    </div>
-  </div>
-
-  <div class="task-row import">
-    <span class="task-dot"></span>
-    <span class="task-title">Agendar reunião BE8 e Cotrijal com PIT</span>
-    <div class="task-meta">
-      <span class="badge time">30min</span>
-      <span class="badge area">Pessoal</span>
-      <span class="badge tag-i">Importante</span>
-      <a class="task-link" href="https://www.notion.so/8496980537ac456796ee20e53f6ebfee?pvs=1" target="_blank">↗ Notion</a>
-    </div>
-  </div>
-</div>
-
-<!-- SEMANA COMPLETA -->
-<div class="section-title">🗓 Plano da Semana</div>
-<div class="week-table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Tarefa</th>
-        <th>Categoria</th>
-        <th>Área</th>
-        <th>Estimativa</th>
-        <th>Dia sugerido</th>
-        <th>Link</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>1</td><td>Dar os encaminhamentos sobre a reunião do conselho</td><td><span class="badge tag-u">🔴 Urgente</span></td><td>Pessoal</td><td>45min</td><td>Ter 26/05</td><td><a href="https://www.notion.so/7b6082806a8f4245b06bd603c2db2c70?pvs=1" target="_blank">↗</a></td></tr>
-      <tr><td>2</td><td>Cobrar do Fernando: PDI e plano de atividades da Ana</td><td><span class="badge tag-u">🔴 Urgente</span></td><td>Pessoal</td><td>20min</td><td>Ter 26/05</td><td><a href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">↗</a></td></tr>
-      <tr><td>3</td><td>Conversar com Fernando sobre as atividades e entregas da Ana</td><td><span class="badge tag-u">🔴 Urgente</span></td><td>Pessoal</td><td>30min</td><td>Ter 26/05</td><td><a href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">↗</a></td></tr>
-      <tr><td>4</td><td>Revisão cirurgia boca</td><td><span class="badge tag-u">🔴 Urgente</span></td><td>Saúde</td><td>1h</td><td>Qua 27/05</td><td><a href="https://www.notion.so/06aef5e5089b475fbcb6550c45f8afd6?pvs=1" target="_blank">↗</a></td></tr>
-      <tr><td>5</td><td>Agendar reunião BE8 e Cotrijal com PIT</td><td><span class="badge tag-i">🟡 Importante</span></td><td>Pessoal</td><td>30min</td><td>Ter 26/05</td><td><a href="https://www.notion.so/8496980537ac456796ee20e53f6ebfee?pvs=1" target="_blank">↗</a></td></tr>
-      <tr><td>6</td><td>Falar com Janete — expansão RS</td><td><span class="badge tag-i">🟡 Importante</span></td><td>Pessoal</td><td>30min</td><td>Qua 27/05</td><td><a href="https://www.notion.so/8842341e1fc84ad0946f0a21e418f7af?pvs=1" target="_blank">↗</a></td></tr>
-      <tr><td>7</td><td>Ler o material dos processos elaborados pela Elvira</td><td><span class="badge tag-i">🟡 Importante</span></td><td>Pessoal</td><td>1h</td><td>Qua 27/05</td><td><a href="https://www.notion.so/9ff59c17d3dd420fa5c2e31fdca389f9?pvs=1" target="_blank">↗</a></td></tr>
-      <tr><td>8</td><td>Consulta psiquiatra</td><td><span class="badge tag-i">🟡 Importante</span></td><td>Saúde</td><td>1h</td><td>Qui 28/05</td><td><a href="https://www.notion.so/0ed35494c21b4f4e841d4c081c6328cf?pvs=1" target="_blank">↗</a></td></tr>
-      <tr><td>9</td><td>Exames e revisão médica</td><td><span class="badge tag-i">🟡 Importante</span></td><td>Saúde</td><td>2h</td><td>Qui 28/05</td><td><a href="https://www.notion.so/5d03134317f04a52a2dbad0c1ec5635b?pvs=1" target="_blank">↗</a></td></tr>
-      <tr><td>10</td><td>Treinamento das pessoas/embaixadoras da marca</td><td><span class="badge tag-i">🟡 Importante</span></td><td>Pessoal</td><td>2h</td><td>Sex 29/05</td><td><a href="https://www.notion.so/daf0f839ccdc4e6692fcb2a1babf5e1a?pvs=1" target="_blank">↗</a></td></tr>
-      <tr><td>11</td><td>Construir relatório de impacto do Instituto</td><td><span class="badge tag-i">🟡 Importante</span></td><td>Pessoal</td><td>3h</td><td>Sex 29/05</td><td><a href="https://www.notion.so/e5f7752aad6a4f00ba83b1f6c4ac3d2c?pvs=1" target="_blank">↗</a></td></tr>
-      <tr><td>12</td><td>Carteira de identidade do Pedro</td><td><span class="badge tag-w">🟢 Pode Esperar</span></td><td>Família</td><td>1h</td><td>Sex 29/05</td><td><a href="https://www.notion.so/91a146420eb64fb8829330391dfffb04?pvs=1" target="_blank">↗</a></td></tr>
-      <tr><td>13</td><td>Agendar dermatologista</td><td><span class="badge tag-w">🟢 Pode Esperar</span></td><td>Saúde</td><td>15min</td><td>Sex 29/05</td><td><a href="https://www.notion.so/9de01b3d16414d8e8563d1a5c9fc4f75?pvs=1" target="_blank">↗</a></td></tr>
-      <tr><td>14</td><td>Agendar depilação</td><td><span class="badge tag-w">🟢 Pode Esperar</span></td><td>Pessoal</td><td>10min</td><td>Sex 29/05</td><td><a href="https://www.notion.so/49256cb3505e4737ad5598485f4d11bf?pvs=1" target="_blank">↗</a></td></tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- CARGA POR DIA -->
-<div class="section-title">⚡ Carga de Trabalho por Dia</div>
-<div class="day-bars">
-  <div class="day-bar-card today">
-    <div class="day-name">Ter · 26/05</div>
-    <div class="day-load">2h 05min</div>
-    <div class="bar-track"><div class="bar-fill" style="width:37%;background:linear-gradient(90deg,#a78bfa,#818cf8)"></div></div>
-  </div>
-  <div class="day-bar-card">
-    <div class="day-name">Qua · 27/05</div>
-    <div class="day-load">2h 30min</div>
-    <div class="bar-track"><div class="bar-fill" style="width:44%;background:linear-gradient(90deg,#60a5fa,#38bdf8)"></div></div>
-  </div>
-  <div class="day-bar-card">
-    <div class="day-name">Qui · 28/05</div>
-    <div class="day-load">3h 00min</div>
-    <div class="bar-track"><div class="bar-fill" style="width:53%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div>
-  </div>
-  <div class="day-bar-card">
-    <div class="day-name">Sex · 29/05</div>
-    <div class="day-load">6h 25min</div>
-    <div class="bar-track"><div class="bar-fill" style="width:100%;background:linear-gradient(90deg,#ef4444,#f97316)"></div></div>
-  </div>
-  <div class="day-bar-card">
-    <div class="day-name">TOTAL</div>
-    <div class="day-load" style="color:#a78bfa">14h 00min</div>
-    <div class="bar-track"><div class="bar-fill" style="width:100%;background:linear-gradient(90deg,#a78bfa,#34d399)"></div></div>
-  </div>
-</div>
-
-<!-- DASHBOARD DE ATUALIZAÇÃO -->
-<div class="section-title">🚀 Dashboard — Atualizar Tarefas no Notion</div>
-<div class="update-dashboard">
-  <div class="db-header">
-    <h2>Clique em uma tarefa para abrir e atualizar direto no Notion</h2>
-    <a class="open-notion-btn" href="https://www.notion.so/cf9c53c195b748428114a0fe7dde2dc3" target="_blank">
-      ↗ Abrir Base Completa no Notion
-    </a>
-  </div>
-
-  <div class="filter-bar">
-    <button class="filter-btn active" onclick="filterKanban('all', this)">Todas (14)</button>
-    <button class="filter-btn f-urgent" onclick="filterKanban('urgent', this)">🔴 Urgentes (4)</button>
-    <button class="filter-btn f-import" onclick="filterKanban('import', this)">🟡 Importantes (7)</button>
-    <button class="filter-btn f-wait"   onclick="filterKanban('wait', this)">🟢 Podem Esperar (3)</button>
-  </div>
-
-  <div class="kanban-board">
-    <!-- A FAZER -->
-    <div class="kanban-col col-todo">
-      <div class="kanban-col-header">
-        <span>⬜ A Fazer</span>
-        <span class="kanban-count" id="cnt-todo">14</span>
-      </div>
-
-      <div class="kanban-card" data-cat="urgent">
-        <div class="kcard-title">Dar os encaminhamentos sobre a reunião do conselho</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#ef4444"></span>
-          <span class="badge time">45min</span><span class="badge area">Pessoal</span><span class="badge tag-u">Urgente</span>
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/7b6082806a8f4245b06bd603c2db2c70?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/7b6082806a8f4245b06bd603c2db2c70?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/7b6082806a8f4245b06bd603c2db2c70?pvs=1" target="_blank">✓ Concluída</a>
-        </div>
-      </div>
-
-      <div class="kanban-card" data-cat="urgent">
-        <div class="kcard-title">Cobrar do Fernando: PDI e plano de atividades da Ana</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#ef4444"></span>
-          <span class="badge time">20min</span><span class="badge area">Pessoal</span><span class="badge tag-u">Urgente</span>
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">✓ Concluída</a>
-        </div>
-      </div>
-
-      <div class="kanban-card" data-cat="urgent">
-        <div class="kcard-title">Conversar com Fernando sobre as atividades e entregas da Ana</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#ef4444"></span>
-          <span class="badge time">30min</span><span class="badge area">Pessoal</span><span class="badge tag-u">Urgente</span>
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">✓ Concluída</a>
-        </div>
-      </div>
-
-      <div class="kanban-card" data-cat="urgent">
-        <div class="kcard-title">Revisão cirurgia boca</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#ef4444"></span>
-          <span class="badge time">1h</span><span class="badge area">Saúde</span><span class="badge tag-u">Urgente</span>
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/06aef5e5089b475fbcb6550c45f8afd6?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/06aef5e5089b475fbcb6550c45f8afd6?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/06aef5e5089b475fbcb6550c45f8afd6?pvs=1" target="_blank">✓ Concluída</a>
-        </div>
-      </div>
-
-      <div class="kanban-card" data-cat="import">
-        <div class="kcard-title">Agendar reunião BE8 e Cotrijal com PIT</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#f59e0b"></span>
-          <span class="badge time">30min</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span>
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/8496980537ac456796ee20e53f6ebfee?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/8496980537ac456796ee20e53f6ebfee?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/8496980537ac456796ee20e53f6ebfee?pvs=1" target="_blank">✓ Concluída</a>
-        </div>
-      </div>
-
-      <div class="kanban-card" data-cat="import">
-        <div class="kcard-title">Falar com Janete — expansão RS</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#f59e0b"></span>
-          <span class="badge time">30min</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span>
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/8842341e1fc84ad0946f0a21e418f7af?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/8842341e1fc84ad0946f0a21e418f7af?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/8842341e1fc84ad0946f0a21e418f7af?pvs=1" target="_blank">✓ Concluída</a>
-        </div>
-      </div>
-
-      <div class="kanban-card" data-cat="import">
-        <div class="kcard-title">Ler o material dos processos elaborados pela Elvira</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#f59e0b"></span>
-          <span class="badge time">1h</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span>
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/9ff59c17d3dd420fa5c2e31fdca389f9?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/9ff59c17d3dd420fa5c2e31fdca389f9?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/9ff59c17d3dd420fa5c2e31fdca389f9?pvs=1" target="_blank">✓ Concluída</a>
-        </div>
-      </div>
-
-      <div class="kanban-card" data-cat="import">
-        <div class="kcard-title">Consulta psiquiatra</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#f59e0b"></span>
-          <span class="badge time">1h</span><span class="badge area">Saúde</span><span class="badge tag-i">Importante</span>
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/0ed35494c21b4f4e841d4c081c6328cf?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/0ed35494c21b4f4e841d4c081c6328cf?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/0ed35494c21b4f4e841d4c081c6328cf?pvs=1" target="_blank">✓ Concluída</a>
-        </div>
-      </div>
-
-      <div class="kanban-card" data-cat="import">
-        <div class="kcard-title">Exames e revisão médica</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#f59e0b"></span>
-          <span class="badge time">2h</span><span class="badge area">Saúde</span><span class="badge tag-i">Importante</span>
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/5d03134317f04a52a2dbad0c1ec5635b?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/5d03134317f04a52a2dbad0c1ec5635b?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/5d03134317f04a52a2dbad0c1ec5635b?pvs=1" target="_blank">✓ Concluída</a>
-        </div>
-      </div>
-
-      <div class="kanban-card" data-cat="import">
-        <div class="kcard-title">Treinamento das pessoas/embaixadoras da marca</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#f59e0b"></span>
-          <span class="badge time">2h</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span>
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/daf0f839ccdc4e6692fcb2a1babf5e1a?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/daf0f839ccdc4e6692fcb2a1babf5e1a?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/daf0f839ccdc4e6692fcb2a1babf5e1a?pvs=1" target="_blank">✓ Concluída</a>
-        </div>
-      </div>
-
-      <div class="kanban-card" data-cat="import">
-        <div class="kcard-title">Construir relatório de impacto do Instituto</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#f59e0b"></span>
-          <span class="badge time">3h</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span>
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/e5f7752aad6a4f00ba83b1f6c4ac3d2c?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/e5f7752aad6a4f00ba83b1f6c4ac3d2c?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/e5f7752aad6a4f00ba83b1f6c4ac3d2c?pvs=1" target="_blank">✓ Concluída</a>
-        </div>
-      </div>
-
-      <div class="kanban-card" data-cat="wait">
-        <div class="kcard-title">Carteira de identidade do Pedro</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#10b981"></span>
-          <span class="badge time">1h</span><span class="badge area">Família</span><span class="badge tag-w">Pode Esperar</span>
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/91a146420eb64fb8829330391dfffb04?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/91a146420eb64fb8829330391dfffb04?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/91a146420eb64fb8829330391dfffb04?pvs=1" target="_blank">✓ Concluída</a>
-        </div>
-      </div>
-
-      <div class="kanban-card" data-cat="wait">
-        <div class="kcard-title">Agendar dermatologista</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#10b981"></span>
-          <span class="badge time">15min</span><span class="badge area">Saúde</span><span class="badge tag-w">Pode Esperar</span>
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/9de01b3d16414d8e8563d1a5c9fc4f75?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/9de01b3d16414d8e8563d1a5c9fc4f75?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/9de01b3d16414d8e8563d1a5c9fc4f75?pvs=1" target="_blank">✓ Concluída</a>
-        </div>
-      </div>
-
-      <div class="kanban-card" data-cat="wait">
-        <div class="kcard-title">Agendar depilação</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#10b981"></span>
-          <span class="badge time">10min</span><span class="badge area">Pessoal</span><span class="badge tag-w">Pode Esperar</span>
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/49256cb3505e4737ad5598485f4d11bf?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/49256cb3505e4737ad5598485f4d11bf?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/49256cb3505e4737ad5598485f4d11bf?pvs=1" target="_blank">✓ Concluída</a>
-        </div>
-      </div>
-    </div><!-- /col-todo -->
-
-    <!-- EM ANDAMENTO (vazia inicialmente) -->
-    <div class="kanban-col col-doing">
-      <div class="kanban-col-header">
-        <span>🟡 Em Andamento</span>
-        <span class="kanban-count" id="cnt-doing">0</span>
-      </div>
-      <div id="doing-placeholder" style="color:#475569;font-size:.82rem;text-align:center;padding:1.5rem 0;">
-        Nenhuma tarefa em andamento
-      </div>
-    </div>
-
-    <!-- CONCLUÍDAS (vazia inicialmente) -->
-    <div class="kanban-col col-done">
-      <div class="kanban-col-header">
-        <span>✅ Concluídas</span>
-        <span class="kanban-count" id="cnt-done">0</span>
-      </div>
-      <div id="done-placeholder" style="color:#475569;font-size:.82rem;text-align:center;padding:1.5rem 0;">
-        Nenhuma tarefa concluída ainda
-      </div>
-    </div>
-  </div><!-- /kanban-board -->
-</div><!-- /update-dashboard -->
-
-<!-- INSIGHTS -->
-<div class="section-title">💡 Insights da Tríade</div>
-<div class="insight-card">
-  <h3>Análise — Christian Barbosa</h3>
-  <ul>
-    <li>Sua semana está com <strong>71% de tarefas Importantes</strong> — alinhada com a meta ideal da Tríade (70/20/10). Parabéns!</li>
-    <li>As 4 tarefas <strong>Urgentes</strong> (18%) são reativas e envolvem follow-ups de pessoas — idealmente delegáveis ou antecipáveis.</li>
-    <li><strong>Nenhuma tarefa tem prazo definido</strong> no Notion, o que reduz a previsibilidade. Adicionar datas aumenta a gestão de energia.</li>
-    <li>Sexta-feira está <strong>sobrecarregada (6h25min)</strong>. Considere antecipar o relatório do Instituto para quinta.</li>
-    <li>Área de <strong>Saúde concentra 4 tarefas</strong> — prioridade pessoal importante que não deve ser postergada mais.</li>
-  </ul>
-</div>
-
-<!-- ══════════════════════════════════════════════════════════
-     SEÇÃO FERNANDO
-     ══════════════════════════════════════════════════════════ -->
-
-<div style="margin: 3rem 0 1.5rem;">
-  <h2 style="text-align:center;font-size:1.6rem;font-weight:700;background:linear-gradient(135deg,#34d399,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
-    🗂️ Delegações para Fernando
-  </h2>
-  <p style="text-align:center;color:#64748b;font-size:.88rem;margin-top:.4rem;">
-    Base: Fernando — Assuntos e Tarefas · Notion &nbsp;·&nbsp; Cobranças pendentes de Márcia
-  </p>
-</div>
-
-<!-- CARDS FERNANDO -->
-<div class="grid-4">
-  <div class="card total">
-    <div class="label">Total delegado</div>
-    <div class="value">5</div>
-    <div class="sub">Todos "A fazer"</div>
-  </div>
-  <div class="card urgent">
-    <div class="label">📋 Tarefas</div>
-    <div class="value">3</div>
-    <div class="sub">Ações a executar</div>
-  </div>
-  <div class="card import">
-    <div class="label">💬 Assuntos</div>
-    <div class="value">2</div>
-    <div class="sub">Pautas a discutir</div>
-  </div>
-  <div class="card wait">
-    <div class="label">✅ Concluídas</div>
-    <div class="value">0</div>
-    <div class="sub">Nenhuma ainda</div>
-  </div>
-</div>
-
-<!-- GRÁFICOS FERNANDO -->
-<div class="grid-2">
-  <div class="chart-card">
-    <h3>Tipo de Item — Fernando</h3>
-    <div class="chart-wrapper">
-      <canvas id="chartFernandoTipo"></canvas>
-    </div>
-  </div>
-  <div class="chart-card">
-    <h3>Cobranças de Márcia → Fernando esta semana</h3>
-    <div class="chart-wrapper">
-      <canvas id="chartFernandoPendencias"></canvas>
+    <div style="margin-top:1rem;padding:1rem;background:#13131f;border:1px solid #2d2d45;border-radius:10px;">
+      <div style="font-size:.74rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.7rem;font-weight:600;">📌 Cobranças de Márcia → Fernando</div>
+      <div class="task-row urgent" style="margin-bottom:.4rem"><span class="task-dot"></span><span class="task-title">Cobrar PDI e plano de atividades da Ana</span><div class="task-meta"><span class="badge tag-u">Urgente</span><a class="task-link" href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">↗ Tarefa de Márcia</a></div></div>
+      <div class="task-row urgent"><span class="task-dot"></span><span class="task-title">Conversar sobre atividades e entregas da Ana</span><div class="task-meta"><span class="badge tag-u">Urgente</span><a class="task-link" href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">↗ Tarefa de Márcia</a></div></div>
     </div>
   </div>
 </div>
 
-<!-- DASHBOARD FERNANDO -->
-<div class="section-title">🚀 Dashboard — Delegações para Fernando</div>
-<div class="update-dashboard">
-  <div class="db-header">
-    <h2>Acompanhe e atualize cada item delegado</h2>
-    <a class="open-notion-btn" href="https://www.notion.so/5db170c651df4054812185194e225c66" target="_blank">
-      ↗ Abrir Base Fernando no Notion
-    </a>
+<!-- ════════════════════════════════════
+     ABA 3 — IASMIN
+     ════════════════════════════════════ -->
+<div id="tab-iasmin" class="tab-panel">
+  <div class="grid-4">
+    <div class="card c1"><div class="label">Total de ações</div><div class="value">4</div><div class="sub">Todas "A fazer"</div></div>
+    <div class="card c2"><div class="label">🔴 Alta prioridade</div><div class="value">3</div><div class="sub">Ação imediata</div></div>
+    <div class="card c3"><div class="label">📎 Contexto Notion</div><div class="value">1</div><div class="sub">Atualização plataforma</div></div>
+    <div class="card c4"><div class="label">✅ Concluídas</div><div class="value">0</div><div class="sub">Nenhuma ainda</div></div>
   </div>
-
-  <div class="filter-bar">
-    <button class="filter-btn active" onclick="filterFernando('all', this)">Todos (5)</button>
-    <button class="filter-btn f-urgent" onclick="filterFernando('tarefa', this)">📋 Tarefas (3)</button>
-    <button class="filter-btn f-import" onclick="filterFernando('assunto', this)">💬 Assuntos (2)</button>
+  <div class="grid-2">
+    <div class="chart-card"><h3>Prioridade — Iasmin</h3><div class="chart-wrap"><canvas id="chartI1"></canvas></div></div>
+    <div class="chart-card"><h3>Contexto das Ações</h3><div class="chart-wrap"><canvas id="chartI2"></canvas></div></div>
   </div>
-
-  <div class="kanban-board">
-    <!-- A FAZER FERNANDO -->
-    <div class="kanban-col col-todo" id="fernando-todo">
-      <div class="kanban-col-header">
-        <span>⬜ A Fazer</span>
-        <span class="kanban-count" id="fcnt-todo">5</span>
-      </div>
-
-      <div class="kanban-card f-card" data-fcat="tarefa">
-        <div class="kcard-title">Elaborar rituais com o time</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#ef4444"></span>
-          <span class="badge tag-u">📋 Tarefa</span>
-          <span class="badge area">Gestão de Time</span>
-        </div>
-        <div style="font-size:.75rem;color:#64748b;margin:.5rem 0 0;line-height:1.5;">
-          Definir rituais recorrentes: daily, 1:1, retro mensal — com pauta, dono e forma de registro.
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/bfe316af334c4e8c83f6880c4a5fbcbb?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/bfe316af334c4e8c83f6880c4a5fbcbb?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/bfe316af334c4e8c83f6880c4a5fbcbb?pvs=1" target="_blank">✓ Feito</a>
-        </div>
-      </div>
-
-      <div class="kanban-card f-card" data-fcat="tarefa">
-        <div class="kcard-title">Squad endomkt da marca: incluir Milena + Propósito nas próximas reuniões</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#ef4444"></span>
-          <span class="badge tag-u">📋 Tarefa</span>
-          <span class="badge area">Comunicação</span>
-        </div>
-        <div style="font-size:.75rem;color:#64748b;margin:.5rem 0 0;line-height:1.5;">
-          Incluir Milena nos convites e inserir "Propósito" como tópico fixo de pauta.
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/5fc8ef676941490bb3da5ae316d381f7?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/5fc8ef676941490bb3da5ae316d381f7?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/5fc8ef676941490bb3da5ae316d381f7?pvs=1" target="_blank">✓ Feito</a>
-        </div>
-      </div>
-
-      <div class="kanban-card f-card" data-fcat="tarefa">
-        <div class="kcard-title">Ações de comunicação (plano + rotina)</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#ef4444"></span>
-          <span class="badge tag-u">📋 Tarefa</span>
-          <span class="badge area">Comunicação</span>
-        </div>
-        <div style="font-size:.75rem;color:#64748b;margin:.5rem 0 0;line-height:1.5;">
-          Plano editorial + rotina: 1 post/semana, 1 newsletter quinzenal, revisão 30min/semana.
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/edac6c1162154d3cad88d4a90f46a3ab?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/edac6c1162154d3cad88d4a90f46a3ab?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/edac6c1162154d3cad88d4a90f46a3ab?pvs=1" target="_blank">✓ Feito</a>
-        </div>
-      </div>
-
-      <div class="kanban-card f-card" data-fcat="assunto">
-        <div class="kcard-title">Uso do NOOT nas reuniões</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#f59e0b"></span>
-          <span class="badge tag-i">💬 Assunto</span>
-          <span class="badge area">Processos</span>
-        </div>
-        <div style="font-size:.75rem;color:#64748b;margin:.5rem 0 0;line-height:1.5;">
-          Pauta sugerida de reunião com uso do NOOT como apoio — não como roteiro.
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/71ca905a0f62468ab779e41e93d3797f?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/71ca905a0f62468ab779e41e93d3797f?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/71ca905a0f62468ab779e41e93d3797f?pvs=1" target="_blank">✓ Feito</a>
-        </div>
-      </div>
-
-      <div class="kanban-card f-card" data-fcat="assunto">
-        <div class="kcard-title">Combinado com Fabi e Iasmin: ao terminar reuniões, enviar a ata imediatamente</div>
-        <div class="kcard-meta">
-          <span class="priority-pip" style="background:#f59e0b"></span>
-          <span class="badge tag-i">💬 Assunto</span>
-          <span class="badge area">Processos</span>
-        </div>
-        <div style="font-size:.75rem;color:#64748b;margin:.5rem 0 0;line-height:1.5;">
-          Acordo operacional: ata em até 10min após reunião, com decisões, responsáveis e prazos.
-        </div>
-        <div class="kcard-actions">
-          <a class="action-btn btn-open"  href="https://www.notion.so/9d3907ad5ba04db7899a14b4749f2353?pvs=1" target="_blank">↗ Abrir</a>
-          <a class="action-btn btn-doing" href="https://www.notion.so/9d3907ad5ba04db7899a14b4749f2353?pvs=1" target="_blank">▶ Em andamento</a>
-          <a class="action-btn btn-done"  href="https://www.notion.so/9d3907ad5ba04db7899a14b4749f2353?pvs=1" target="_blank">✓ Feito</a>
-        </div>
-      </div>
+  <div class="stitle">🚀 Dashboard — Ações de Iasmin</div>
+  <div class="update-dashboard">
+    <div class="db-header"><h2>Atualize o status de cada ação</h2><a class="open-notion-btn" href="https://www.notion.so/8cdf9eab7d054ccbbe8377f79786b1f6" target="_blank">↗ Base Iasmin no Notion</a></div>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterBoard('i','all',this)">Todas (4)</button>
+      <button class="filter-btn" onclick="filterBoard('i','alta',this)">🔴 Alta (3)</button>
+      <button class="filter-btn" onclick="filterBoard('i','outros',this)">📎 Outros (1)</button>
     </div>
-
-    <!-- EM ANDAMENTO FERNANDO -->
-    <div class="kanban-col col-doing" id="fernando-doing">
-      <div class="kanban-col-header">
-        <span>🟡 Em Andamento</span>
-        <span class="kanban-count" id="fcnt-doing">0</span>
+    <div class="kanban-board">
+      <div class="kanban-col col-todo" id="i-todo">
+        <div class="kanban-col-header"><span>⬜ A Fazer</span><span class="kanban-count" id="icnt-todo">4</span></div>
+        <div class="kanban-card" data-board="i" data-cat="alta"><div class="kcard-title">Atualizar dados dos clientes associados e de suas famílias</div><div class="kcard-meta"><span class="pip" style="background:#ef4444"></span><span class="badge tag-u">Alta Prioridade</span><span class="badge area">CRM</span></div><div class="kcard-note">Validar cadastro: nome, empresa, cargo, telefone, e-mail, cidade, familiares vinculados.</div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/62894756c52249cf85c105db99bf6462?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'i-doing','icnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'i-done','icnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="i" data-cat="alta"><div class="kcard-title">Ligar e agendar entrevistas sobre a evolução da marca</div><div class="kcard-meta"><span class="pip" style="background:#ef4444"></span><span class="badge tag-u">Alta Prioridade</span><span class="badge area">Marca</span></div><div class="kcard-note">Listar pessoas-alvo, definir datas, criar roteiro curto (5–7 perguntas) e registrar no Notion.</div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/fbdbcadca6eb46e8999642c64de7b618?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'i-doing','icnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'i-done','icnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="i" data-cat="alta"><div class="kcard-title">Atualizar plataformas de planejamento estratégico e dos projetos</div><div class="kcard-meta"><span class="pip" style="background:#ef4444"></span><span class="badge tag-u">Alta Prioridade</span><span class="badge area">Notion</span></div><div class="kcard-note">Revisar links, atualizar status dos projetos, padronizar estrutura das páginas.</div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/918d5c15eb8d4ce9bb27c3ef5b057f1d?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'i-doing','icnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'i-done','icnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="i" data-cat="outros"><div class="kcard-title">Dados dos associados</div><div class="kcard-meta"><span class="pip" style="background:#94a3b8"></span><span class="badge">📎 Arquivo</span><span class="badge area">CRM</span></div><div class="kcard-note">Planilha com dados dos associados (Instituto Aliança CRM — xlsx anexado no Notion).</div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/348bb30ee45c817b9112cbf8ab0c668a?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'i-doing','icnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'i-done','icnt')">✓ Concluída</button></div></div>
       </div>
-      <div id="fdoing-placeholder" style="color:#475569;font-size:.82rem;text-align:center;padding:1.5rem 0;">
-        Nenhum item em andamento
-      </div>
-    </div>
-
-    <!-- FEITO FERNANDO -->
-    <div class="kanban-col col-done" id="fernando-done">
-      <div class="kanban-col-header">
-        <span>✅ Feito</span>
-        <span class="kanban-count" id="fcnt-done">0</span>
-      </div>
-      <div id="fdone-placeholder" style="color:#475569;font-size:.82rem;text-align:center;padding:1.5rem 0;">
-        Nenhum item concluído ainda
-      </div>
-    </div>
-  </div>
-
-  <!-- COBRANÇA RÁPIDA -->
-  <div style="margin-top:1.2rem;padding:1rem 1.2rem;background:#13131f;border:1px solid #2d2d45;border-radius:12px;">
-    <div style="font-size:.78rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.7rem;font-weight:600;">
-      📌 Cobranças de Márcia → Fernando (desta semana)
-    </div>
-    <div class="task-row urgent" style="margin-bottom:.4rem;">
-      <span class="task-dot" style="background:#ef4444"></span>
-      <span class="task-title">Cobrar PDI e plano de atividades da Ana</span>
-      <div class="task-meta">
-        <span class="badge tag-u">Urgente</span>
-        <span class="badge time">20min</span>
-        <a class="task-link" href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">↗ Tarefa de Márcia</a>
-      </div>
-    </div>
-    <div class="task-row urgent">
-      <span class="task-dot" style="background:#ef4444"></span>
-      <span class="task-title">Conversar sobre atividades e entregas da Ana</span>
-      <div class="task-meta">
-        <span class="badge tag-u">Urgente</span>
-        <span class="badge time">30min</span>
-        <a class="task-link" href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">↗ Tarefa de Márcia</a>
-      </div>
+      <div class="kanban-col col-doing" id="i-doing"><div class="kanban-col-header"><span>🟡 Em Andamento</span><span class="kanban-count" id="icnt-doing">0</span></div><div class="placeholder-empty" id="i-doing-ph">Nenhuma ação em andamento</div></div>
+      <div class="kanban-col col-done"  id="i-done"> <div class="kanban-col-header"><span>✅ Concluídas</span><span class="kanban-count" id="icnt-done">0</span></div><div class="placeholder-empty" id="i-done-ph">Nenhuma ação concluída</div></div>
     </div>
   </div>
 </div>
 
-<footer>Gerado em 26/05/2026 · Dados: Notion — Tarefas Pessoais Márcia + Fernando · Metodologia: Tríade do Tempo (Christian Barbosa)</footer>
+<!-- ════════════════════════════════════
+     ABA 4 — FABIANE
+     ════════════════════════════════════ -->
+<div id="tab-fabiane" class="tab-panel">
+  <div class="grid-4">
+    <div class="card c1"><div class="label">Total de tarefas</div><div class="value">3</div><div class="sub">Base Operacional</div></div>
+    <div class="card c2"><div class="label">🔴 Alta prioridade</div><div class="value">1</div><div class="sub">Não iniciada</div></div>
+    <div class="card c3"><div class="label">📁 Categoria</div><div class="value">2</div><div class="sub">Hub/Silo + Aliança</div></div>
+    <div class="card c4"><div class="label">✅ Concluídas</div><div class="value">0</div><div class="sub">Nenhuma ainda</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="chart-card"><h3>Distribuição por Categoria — Fabiane</h3><div class="chart-wrap"><canvas id="chartFab1"></canvas></div></div>
+    <div class="chart-card">
+      <h3>Perfil — Fabiane Dalmolin</h3>
+      <div style="padding:.5rem 0;display:flex;flex-direction:column;gap:.6rem">
+        <div style="display:flex;gap:.7rem;align-items:center"><span style="font-size:1.6rem">👩‍💼</span><div><div style="font-size:.95rem;font-weight:700;color:#f9a8d4">Fabiane Dalmolin</div><div style="font-size:.78rem;color:#94a3b8">Líder de Operações e Governança Institucional</div></div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;font-size:.78rem">
+          <div><span style="color:#64748b">Empresa:</span> <span style="color:#e2e8f0">Instituto Aliança</span></div>
+          <div><span style="color:#64748b">Cidade:</span> <span style="color:#e2e8f0">Passo Fundo</span></div>
+          <div><span style="color:#64748b">Comitê:</span> <span style="color:#e2e8f0">Gestão Interna</span></div>
+          <div><span style="color:#64748b">ID Membro:</span> <span style="color:#e2e8f0">ALI-10</span></div>
+          <div><span style="color:#64748b">E-mail:</span> <span style="color:#e2e8f0">fabiane@aliancahub.com.br</span></div>
+          <div><span style="color:#64748b">Status:</span> <span style="color:#34d399">✅ Ativo</span></div>
+        </div>
+        <a href="https://www.notion.so/348bb30ee45c815eb4b3d70775b74c86?pvs=1" target="_blank" style="font-size:.76rem;color:#60a5fa;text-decoration:none">↗ Ver perfil completo no Notion</a>
+      </div>
+    </div>
+  </div>
+  <div class="stitle">🚀 Dashboard — Tarefas de Fabiane</div>
+  <div class="update-dashboard">
+    <div class="db-header"><h2>Tarefas da base operacional com Fabiane como responsável</h2><a class="open-notion-btn" href="https://www.notion.so/f49bb30ee45c823ea60f01661d7e7209" target="_blank">↗ Base Operacional no Notion</a></div>
+    <div class="kanban-board">
+      <div class="kanban-col col-todo" id="fab-todo">
+        <div class="kanban-col-header"><span>⬜ Não Iniciada</span><span class="kanban-count" id="fabcnt-todo">3</span></div>
+        <div class="kanban-card" data-board="fab" data-cat="hub"><div class="kcard-title">Políticas de locação</div><div class="kcard-meta"><span class="pip" style="background:#f472b6"></span><span class="badge tag-f">Hub - Silo</span><span class="badge area">Governança</span></div><div class="kcard-note">Responsável: Fabiane · Definir políticas de locação do espaço Hub/Silo.</div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/07abb30ee45c82449ecd01d42cbc1000?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'fab-doing','fabcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'fab-done','fabcnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="fab" data-cat="alianca"><div class="kcard-title">Alterações contratos sócios e silo</div><div class="kcard-meta"><span class="pip" style="background:#f472b6"></span><span class="badge tag-f">Aliança</span><span class="badge area">Jurídico</span></div><div class="kcard-note">Responsável: Fabiane · Atualizar contratos dos sócios e do silo conforme alterações.</div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/f2cbb30ee45c836b90b101529c532043?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'fab-doing','fabcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'fab-done','fabcnt')">✓ Concluída</button></div></div>
+        <div class="kanban-card" data-board="fab" data-cat="hub"><div class="kcard-title">Melhorar a comunicação e exposição das marcas no espaço físico</div><div class="kcard-meta"><span class="pip" style="background:#f472b6"></span><span class="badge tag-u">Alta</span><span class="badge tag-f">Hub - Silo</span></div><div class="kcard-note">Executor: Fabiane · Responsável Fernando. Referência: case Caldeira. Melhorar sinalização e exposição visual.</div><div class="kcard-actions"><a class="action-btn btn-open" href="https://www.notion.so/341bb30ee45c80b4b500da4fc815798e?pvs=1" target="_blank">↗ Abrir</a><button class="action-btn btn-doing" onclick="moveCard(this,'fab-doing','fabcnt')">▶ Andamento</button><button class="action-btn btn-done" onclick="moveCard(this,'fab-done','fabcnt')">✓ Concluída</button></div></div>
+      </div>
+      <div class="kanban-col col-doing" id="fab-doing"><div class="kanban-col-header"><span>🟡 Em Andamento</span><span class="kanban-count" id="fabcnt-doing">0</span></div><div class="placeholder-empty" id="fab-doing-ph">Nenhuma tarefa em andamento</div></div>
+      <div class="kanban-col col-done"  id="fab-done"> <div class="kanban-col-header"><span>✅ Concluídas</span><span class="kanban-count" id="fabcnt-done">0</span></div><div class="placeholder-empty" id="fab-done-ph">Nenhuma tarefa concluída</div></div>
+    </div>
+  </div>
+</div>
 
+<footer>Gerado em 26/05/2026 · Dados: Notion — Tarefas Pessoais Márcia · Fernando · Ações Iasmin · Base Operacional Fabiane · Metodologia: Tríade do Tempo (Christian Barbosa)</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-  const triade = new Chart(document.getElementById('chartTriade'), {
-    type: 'doughnut',
-    data: {
-      labels: ['🟡 Importantes (71%)', '🔴 Urgentes (18%)', '⚪ Circunstanciais (11%)'],
-      datasets: [{
-        data: [600, 155, 85],
-        backgroundColor: ['#f59e0b', '#ef4444', '#475569'],
-        borderColor: '#1e1e2e',
-        borderWidth: 3,
-        hoverOffset: 10
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '62%',
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { color: '#94a3b8', font: { size: 11 }, padding: 14, boxWidth: 12 }
-        },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => {
-              const mins = ctx.raw;
-              const h = Math.floor(mins/60), m = mins%60;
-              return ` ${h}h ${m.toString().padStart(2,'0')}min`;
-            }
-          }
-        }
-      }
-    }
+/* ── TAB SWITCH ── */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ── MOVE CARD (local feedback) ── */
+function moveCard(btn, targetId, cntPrefix) {
+  const card = btn.closest('.kanban-card');
+  const target = document.getElementById(targetId);
+  if (!target || card.parentElement === target) return;
+  target.appendChild(card);
+  const col = targetId.endsWith('-doing') ? 'doing' : 'done';
+  card.style.borderColor = col === 'doing' ? '#fbbf24' : '#34d399';
+  if (col === 'done') card.style.opacity = '.65';
+  setTimeout(() => card.style.borderColor = '', 700);
+  updateAllCounts(cntPrefix);
+}
+
+function updateAllCounts(prefix) {
+  const ids = [prefix + 'cnt-todo', prefix + 'cnt-doing', prefix + 'cnt-done'];
+  const cols = [prefix.replace('cnt','') + 'todo', prefix.replace('cnt','') + 'doing', prefix.replace('cnt','') + 'done'];
+  // Find columns dynamically
+  const allCols = document.querySelectorAll('[id$="-todo"],[id$="-doing"],[id$="-done"]');
+  allCols.forEach(col => {
+    const sfx = col.id.split('-').slice(-1)[0];
+    const pfx = col.id.replace('-' + sfx, '');
+    const cntId = pfx + 'cnt-' + sfx;
+    const cntEl = document.getElementById(cntId);
+    const phEl  = document.getElementById(pfx + '-' + sfx + '-ph');
+    if (cntEl) cntEl.textContent = col.querySelectorAll('.kanban-card').length;
+    if (phEl)  phEl.style.display = col.querySelectorAll('.kanban-card').length ? 'none' : 'block';
   });
+}
 
-  const area = new Chart(document.getElementById('chartArea'), {
-    type: 'bar',
-    data: {
-      labels: ['Pessoal', 'Saúde', 'Família'],
-      datasets: [{
-        label: 'Tarefas',
-        data: [9, 4, 1],
-        backgroundColor: ['#a78bfa', '#34d399', '#60a5fa'],
-        borderRadius: 8,
-        borderSkipped: false
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: (ctx) => ` ${ctx.raw} tarefa${ctx.raw > 1 ? 's' : ''}` } }
-      },
-      scales: {
-        x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e2535' } },
-        y: {
-          ticks: { color: '#94a3b8', stepSize: 1 },
-          grid: { color: '#1e2535' },
-          beginAtZero: true
-        }
-      }
-    }
+/* ── FILTER BOARD ── */
+function filterBoard(board, cat, btn) {
+  btn.closest('.filter-bar').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll(`[data-board="${board}"]`).forEach(card => {
+    card.classList.toggle('hidden', cat !== 'all' && card.dataset.cat !== cat);
   });
-</script>
+}
 
-<script>
-  /* ── FILTRO KANBAN ── */
-  function filterKanban(cat, btn) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.kanban-card').forEach(card => {
-      card.classList.toggle('hidden', cat !== 'all' && card.dataset.cat !== cat);
-    });
-    updateCounts();
-  }
+/* ── CHARTS ── */
+const darkBg = '#1e1e2e', gridColor = '#1e2535', textColor = '#94a3b8';
+const legendOpts = { position:'bottom', labels:{ color: textColor, font:{size:11}, padding:12, boxWidth:12 } };
 
-  /* ── CONTADORES ── */
-  function updateCounts() {
-    const vis = (col) => col.querySelectorAll('.kanban-card:not(.hidden)').length;
-    document.getElementById('cnt-todo').textContent  = vis(document.querySelector('.col-todo'));
-    document.getElementById('cnt-doing').textContent = vis(document.querySelector('.col-doing'));
-    document.getElementById('cnt-done').textContent  = vis(document.querySelector('.col-done'));
-    togglePlaceholder('doing-placeholder', '.col-doing');
-    togglePlaceholder('done-placeholder',  '.col-done');
-  }
+// Márcia — Tríade
+new Chart(document.getElementById('chartM1'), { type:'doughnut', data:{ labels:['🟡 Importantes 71%','🔴 Urgentes 18%','⚪ Circ. 11%'], datasets:[{ data:[600,155,85], backgroundColor:['#f59e0b','#ef4444','#475569'], borderColor:darkBg, borderWidth:3, hoverOffset:10 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{ legend:legendOpts, tooltip:{ callbacks:{ label:ctx=>{ const h=Math.floor(ctx.raw/60),m=ctx.raw%60; return ` ${h}h ${String(m).padStart(2,'0')}min`; } } } } } });
 
-  function togglePlaceholder(id, colSel) {
-    const col   = document.querySelector(colSel);
-    const ph    = document.getElementById(id);
-    const cards = col.querySelectorAll('.kanban-card:not(.hidden)');
-    if (ph) ph.style.display = cards.length ? 'none' : 'block';
-  }
+// Márcia — Área
+new Chart(document.getElementById('chartM2'), { type:'bar', data:{ labels:['Pessoal','Saúde','Família'], datasets:[{ data:[9,4,1], backgroundColor:['#a78bfa','#34d399','#60a5fa'], borderRadius:8, borderSkipped:false }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{ x:{ ticks:{color:textColor}, grid:{color:gridColor} }, y:{ ticks:{color:textColor,stepSize:1}, grid:{color:gridColor}, beginAtZero:true } } } });
 
-  /* ── MOVER CARD LOCALMENTE (feedback visual) ── */
-  document.querySelectorAll('.action-btn.btn-doing').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      const card = this.closest('.kanban-card');
-      const col  = document.querySelector('.col-doing');
-      const ph   = document.getElementById('doing-placeholder');
-      if (card.closest('.col-doing')) return; // já está lá
-      col.appendChild(card);
-      card.style.borderColor = '#fbbf24';
-      setTimeout(() => card.style.borderColor = '', 800);
-      updateCounts();
-    });
-  });
+// Fernando — Tipo
+new Chart(document.getElementById('chartF1'), { type:'doughnut', data:{ labels:['📋 Tarefas (3)','💬 Assuntos (2)'], datasets:[{ data:[3,2], backgroundColor:['#ef4444','#f59e0b'], borderColor:darkBg, borderWidth:3, hoverOffset:10 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{ legend:legendOpts } } });
 
-  document.querySelectorAll('.action-btn.btn-done').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      const card = this.closest('.kanban-card');
-      const col  = document.querySelector('.col-done');
-      if (card.closest('.col-done')) return;
-      col.appendChild(card);
-      card.style.borderColor = '#34d399';
-      card.style.opacity = '.6';
-      setTimeout(() => card.style.borderColor = '', 800);
-      updateCounts();
-    });
-  });
+// Fernando — Pendências
+new Chart(document.getElementById('chartF2'), { type:'bar', data:{ labels:['PDI Ana','Entregas Ana','Rituais','Squad Endomkt','Plano Comun.'], datasets:[{ data:[1,1,1,1,1], backgroundColor:['#ef4444','#ef4444','#f59e0b','#f59e0b','#f59e0b'], borderRadius:8, borderSkipped:false }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ callbacks:{label:()=>' Pendente'} } }, scales:{ x:{ ticks:{color:textColor,font:{size:10}}, grid:{color:gridColor} }, y:{ display:false, beginAtZero:true, max:1.5 } } } });
 
-  updateCounts();
+// Iasmin — Prioridade
+new Chart(document.getElementById('chartI1'), { type:'doughnut', data:{ labels:['🔴 Alta (3)','⚪ Indefinida (1)'], datasets:[{ data:[3,1], backgroundColor:['#ef4444','#475569'], borderColor:darkBg, borderWidth:3, hoverOffset:10 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{ legend:legendOpts } } });
 
-  /* ── GRÁFICOS FERNANDO ── */
-  new Chart(document.getElementById('chartFernandoTipo'), {
-    type: 'doughnut',
-    data: {
-      labels: ['📋 Tarefas (3)', '💬 Assuntos (2)'],
-      datasets: [{
-        data: [3, 2],
-        backgroundColor: ['#ef4444', '#f59e0b'],
-        borderColor: '#1e1e2e',
-        borderWidth: 3,
-        hoverOffset: 10
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '62%',
-      plugins: {
-        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 }, padding: 14, boxWidth: 12 } }
-      }
-    }
-  });
+// Iasmin — Contexto
+new Chart(document.getElementById('chartI2'), { type:'bar', data:{ labels:['CRM / Dados','Marca','Notion/Projetos'], datasets:[{ data:[2,1,1], backgroundColor:['#34d399','#a78bfa','#60a5fa'], borderRadius:8, borderSkipped:false }] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales:{ x:{ ticks:{color:textColor}, grid:{color:gridColor} }, y:{ ticks:{color:textColor,stepSize:1}, grid:{color:gridColor}, beginAtZero:true } } } });
 
-  new Chart(document.getElementById('chartFernandoPendencias'), {
-    type: 'bar',
-    data: {
-      labels: ['PDI da Ana', 'Entregas da Ana', 'Rituais de Time', 'Squad Endomkt', 'Plano Comunicação'],
-      datasets: [{
-        label: 'Status',
-        data: [1, 1, 1, 1, 1],
-        backgroundColor: ['#ef4444', '#ef4444', '#f59e0b', '#f59e0b', '#f59e0b'],
-        borderRadius: 8,
-        borderSkipped: false
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: () => ' Pendente' } }
-      },
-      scales: {
-        x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: '#1e2535' } },
-        y: { display: false, beginAtZero: true, max: 1.5 }
-      }
-    }
-  });
+// Fabiane — Categoria
+new Chart(document.getElementById('chartFab1'), { type:'doughnut', data:{ labels:['Hub - Silo (2)','Aliança (1)'], datasets:[{ data:[2,1], backgroundColor:['#f472b6','#ec4899'], borderColor:darkBg, borderWidth:3, hoverOffset:10 }] }, options:{ responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{ legend:legendOpts } } });
 
-  /* ── FILTRO KANBAN FERNANDO ── */
-  function filterFernando(cat, btn) {
-    btn.closest('.filter-bar').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.f-card').forEach(card => {
-      card.classList.toggle('hidden', cat !== 'all' && card.dataset.fcat !== cat);
-    });
-    updateFernandoCounts();
-  }
-
-  function updateFernandoCounts() {
-    const fvis = (id) => document.getElementById(id).querySelectorAll('.kanban-card:not(.hidden)').length;
-    document.getElementById('fcnt-todo').textContent  = fvis('fernando-todo');
-    document.getElementById('fcnt-doing').textContent = fvis('fernando-doing');
-    document.getElementById('fcnt-done').textContent  = fvis('fernando-done');
-    const fdph = document.getElementById('fdoing-placeholder');
-    const fdnph = document.getElementById('fdone-placeholder');
-    if (fdph)  fdph.style.display  = fvis('fernando-doing') ? 'none' : 'block';
-    if (fdnph) fdnph.style.display = fvis('fernando-done')  ? 'none' : 'block';
-  }
-
-  document.querySelectorAll('.f-card .btn-doing').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const card = this.closest('.kanban-card');
-      if (card.closest('#fernando-doing')) return;
-      document.getElementById('fernando-doing').appendChild(card);
-      card.style.borderColor = '#fbbf24';
-      setTimeout(() => card.style.borderColor = '', 800);
-      updateFernandoCounts();
-    });
-  });
-
-  document.querySelectorAll('.f-card .btn-done').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const card = this.closest('.kanban-card');
-      if (card.closest('#fernando-done')) return;
-      document.getElementById('fernando-done').appendChild(card);
-      card.style.borderColor = '#34d399';
-      card.style.opacity = '.6';
-      setTimeout(() => card.style.borderColor = '', 800);
-      updateFernandoCounts();
-    });
-  });
-
-  updateFernandoCounts();
+// Init counts
+updateAllCounts('');
 </script>
 </body>
 </html>
