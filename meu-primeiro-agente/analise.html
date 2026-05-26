@@ -781,7 +781,219 @@
   </ul>
 </div>
 
-<footer>Gerado em 26/05/2026 · Dados: Notion — Tarefas Pessoais Márcia · Metodologia: Tríade do Tempo (Christian Barbosa)</footer>
+<!-- ══════════════════════════════════════════════════════════
+     SEÇÃO FERNANDO
+     ══════════════════════════════════════════════════════════ -->
+
+<div style="margin: 3rem 0 1.5rem;">
+  <h2 style="text-align:center;font-size:1.6rem;font-weight:700;background:linear-gradient(135deg,#34d399,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+    🗂️ Delegações para Fernando
+  </h2>
+  <p style="text-align:center;color:#64748b;font-size:.88rem;margin-top:.4rem;">
+    Base: Fernando — Assuntos e Tarefas · Notion &nbsp;·&nbsp; Cobranças pendentes de Márcia
+  </p>
+</div>
+
+<!-- CARDS FERNANDO -->
+<div class="grid-4">
+  <div class="card total">
+    <div class="label">Total delegado</div>
+    <div class="value">5</div>
+    <div class="sub">Todos "A fazer"</div>
+  </div>
+  <div class="card urgent">
+    <div class="label">📋 Tarefas</div>
+    <div class="value">3</div>
+    <div class="sub">Ações a executar</div>
+  </div>
+  <div class="card import">
+    <div class="label">💬 Assuntos</div>
+    <div class="value">2</div>
+    <div class="sub">Pautas a discutir</div>
+  </div>
+  <div class="card wait">
+    <div class="label">✅ Concluídas</div>
+    <div class="value">0</div>
+    <div class="sub">Nenhuma ainda</div>
+  </div>
+</div>
+
+<!-- GRÁFICOS FERNANDO -->
+<div class="grid-2">
+  <div class="chart-card">
+    <h3>Tipo de Item — Fernando</h3>
+    <div class="chart-wrapper">
+      <canvas id="chartFernandoTipo"></canvas>
+    </div>
+  </div>
+  <div class="chart-card">
+    <h3>Cobranças de Márcia → Fernando esta semana</h3>
+    <div class="chart-wrapper">
+      <canvas id="chartFernandoPendencias"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD FERNANDO -->
+<div class="section-title">🚀 Dashboard — Delegações para Fernando</div>
+<div class="update-dashboard">
+  <div class="db-header">
+    <h2>Acompanhe e atualize cada item delegado</h2>
+    <a class="open-notion-btn" href="https://www.notion.so/5db170c651df4054812185194e225c66" target="_blank">
+      ↗ Abrir Base Fernando no Notion
+    </a>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterFernando('all', this)">Todos (5)</button>
+    <button class="filter-btn f-urgent" onclick="filterFernando('tarefa', this)">📋 Tarefas (3)</button>
+    <button class="filter-btn f-import" onclick="filterFernando('assunto', this)">💬 Assuntos (2)</button>
+  </div>
+
+  <div class="kanban-board">
+    <!-- A FAZER FERNANDO -->
+    <div class="kanban-col col-todo" id="fernando-todo">
+      <div class="kanban-col-header">
+        <span>⬜ A Fazer</span>
+        <span class="kanban-count" id="fcnt-todo">5</span>
+      </div>
+
+      <div class="kanban-card f-card" data-fcat="tarefa">
+        <div class="kcard-title">Elaborar rituais com o time</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#ef4444"></span>
+          <span class="badge tag-u">📋 Tarefa</span>
+          <span class="badge area">Gestão de Time</span>
+        </div>
+        <div style="font-size:.75rem;color:#64748b;margin:.5rem 0 0;line-height:1.5;">
+          Definir rituais recorrentes: daily, 1:1, retro mensal — com pauta, dono e forma de registro.
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/bfe316af334c4e8c83f6880c4a5fbcbb?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/bfe316af334c4e8c83f6880c4a5fbcbb?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/bfe316af334c4e8c83f6880c4a5fbcbb?pvs=1" target="_blank">✓ Feito</a>
+        </div>
+      </div>
+
+      <div class="kanban-card f-card" data-fcat="tarefa">
+        <div class="kcard-title">Squad endomkt da marca: incluir Milena + Propósito nas próximas reuniões</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#ef4444"></span>
+          <span class="badge tag-u">📋 Tarefa</span>
+          <span class="badge area">Comunicação</span>
+        </div>
+        <div style="font-size:.75rem;color:#64748b;margin:.5rem 0 0;line-height:1.5;">
+          Incluir Milena nos convites e inserir "Propósito" como tópico fixo de pauta.
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/5fc8ef676941490bb3da5ae316d381f7?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/5fc8ef676941490bb3da5ae316d381f7?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/5fc8ef676941490bb3da5ae316d381f7?pvs=1" target="_blank">✓ Feito</a>
+        </div>
+      </div>
+
+      <div class="kanban-card f-card" data-fcat="tarefa">
+        <div class="kcard-title">Ações de comunicação (plano + rotina)</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#ef4444"></span>
+          <span class="badge tag-u">📋 Tarefa</span>
+          <span class="badge area">Comunicação</span>
+        </div>
+        <div style="font-size:.75rem;color:#64748b;margin:.5rem 0 0;line-height:1.5;">
+          Plano editorial + rotina: 1 post/semana, 1 newsletter quinzenal, revisão 30min/semana.
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/edac6c1162154d3cad88d4a90f46a3ab?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/edac6c1162154d3cad88d4a90f46a3ab?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/edac6c1162154d3cad88d4a90f46a3ab?pvs=1" target="_blank">✓ Feito</a>
+        </div>
+      </div>
+
+      <div class="kanban-card f-card" data-fcat="assunto">
+        <div class="kcard-title">Uso do NOOT nas reuniões</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#f59e0b"></span>
+          <span class="badge tag-i">💬 Assunto</span>
+          <span class="badge area">Processos</span>
+        </div>
+        <div style="font-size:.75rem;color:#64748b;margin:.5rem 0 0;line-height:1.5;">
+          Pauta sugerida de reunião com uso do NOOT como apoio — não como roteiro.
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/71ca905a0f62468ab779e41e93d3797f?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/71ca905a0f62468ab779e41e93d3797f?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/71ca905a0f62468ab779e41e93d3797f?pvs=1" target="_blank">✓ Feito</a>
+        </div>
+      </div>
+
+      <div class="kanban-card f-card" data-fcat="assunto">
+        <div class="kcard-title">Combinado com Fabi e Iasmin: ao terminar reuniões, enviar a ata imediatamente</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#f59e0b"></span>
+          <span class="badge tag-i">💬 Assunto</span>
+          <span class="badge area">Processos</span>
+        </div>
+        <div style="font-size:.75rem;color:#64748b;margin:.5rem 0 0;line-height:1.5;">
+          Acordo operacional: ata em até 10min após reunião, com decisões, responsáveis e prazos.
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/9d3907ad5ba04db7899a14b4749f2353?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/9d3907ad5ba04db7899a14b4749f2353?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/9d3907ad5ba04db7899a14b4749f2353?pvs=1" target="_blank">✓ Feito</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- EM ANDAMENTO FERNANDO -->
+    <div class="kanban-col col-doing" id="fernando-doing">
+      <div class="kanban-col-header">
+        <span>🟡 Em Andamento</span>
+        <span class="kanban-count" id="fcnt-doing">0</span>
+      </div>
+      <div id="fdoing-placeholder" style="color:#475569;font-size:.82rem;text-align:center;padding:1.5rem 0;">
+        Nenhum item em andamento
+      </div>
+    </div>
+
+    <!-- FEITO FERNANDO -->
+    <div class="kanban-col col-done" id="fernando-done">
+      <div class="kanban-col-header">
+        <span>✅ Feito</span>
+        <span class="kanban-count" id="fcnt-done">0</span>
+      </div>
+      <div id="fdone-placeholder" style="color:#475569;font-size:.82rem;text-align:center;padding:1.5rem 0;">
+        Nenhum item concluído ainda
+      </div>
+    </div>
+  </div>
+
+  <!-- COBRANÇA RÁPIDA -->
+  <div style="margin-top:1.2rem;padding:1rem 1.2rem;background:#13131f;border:1px solid #2d2d45;border-radius:12px;">
+    <div style="font-size:.78rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.7rem;font-weight:600;">
+      📌 Cobranças de Márcia → Fernando (desta semana)
+    </div>
+    <div class="task-row urgent" style="margin-bottom:.4rem;">
+      <span class="task-dot" style="background:#ef4444"></span>
+      <span class="task-title">Cobrar PDI e plano de atividades da Ana</span>
+      <div class="task-meta">
+        <span class="badge tag-u">Urgente</span>
+        <span class="badge time">20min</span>
+        <a class="task-link" href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">↗ Tarefa de Márcia</a>
+      </div>
+    </div>
+    <div class="task-row urgent">
+      <span class="task-dot" style="background:#ef4444"></span>
+      <span class="task-title">Conversar sobre atividades e entregas da Ana</span>
+      <div class="task-meta">
+        <span class="badge tag-u">Urgente</span>
+        <span class="badge time">30min</span>
+        <a class="task-link" href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">↗ Tarefa de Márcia</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>Gerado em 26/05/2026 · Dados: Notion — Tarefas Pessoais Márcia + Fernando · Metodologia: Tríade do Tempo (Christian Barbosa)</footer>
 
 <script>
   const triade = new Chart(document.getElementById('chartTriade'), {
@@ -905,6 +1117,101 @@
   });
 
   updateCounts();
+
+  /* ── GRÁFICOS FERNANDO ── */
+  new Chart(document.getElementById('chartFernandoTipo'), {
+    type: 'doughnut',
+    data: {
+      labels: ['📋 Tarefas (3)', '💬 Assuntos (2)'],
+      datasets: [{
+        data: [3, 2],
+        backgroundColor: ['#ef4444', '#f59e0b'],
+        borderColor: '#1e1e2e',
+        borderWidth: 3,
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 }, padding: 14, boxWidth: 12 } }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('chartFernandoPendencias'), {
+    type: 'bar',
+    data: {
+      labels: ['PDI da Ana', 'Entregas da Ana', 'Rituais de Time', 'Squad Endomkt', 'Plano Comunicação'],
+      datasets: [{
+        label: 'Status',
+        data: [1, 1, 1, 1, 1],
+        backgroundColor: ['#ef4444', '#ef4444', '#f59e0b', '#f59e0b', '#f59e0b'],
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: () => ' Pendente' } }
+      },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { color: '#1e2535' } },
+        y: { display: false, beginAtZero: true, max: 1.5 }
+      }
+    }
+  });
+
+  /* ── FILTRO KANBAN FERNANDO ── */
+  function filterFernando(cat, btn) {
+    btn.closest('.filter-bar').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.f-card').forEach(card => {
+      card.classList.toggle('hidden', cat !== 'all' && card.dataset.fcat !== cat);
+    });
+    updateFernandoCounts();
+  }
+
+  function updateFernandoCounts() {
+    const fvis = (id) => document.getElementById(id).querySelectorAll('.kanban-card:not(.hidden)').length;
+    document.getElementById('fcnt-todo').textContent  = fvis('fernando-todo');
+    document.getElementById('fcnt-doing').textContent = fvis('fernando-doing');
+    document.getElementById('fcnt-done').textContent  = fvis('fernando-done');
+    const fdph = document.getElementById('fdoing-placeholder');
+    const fdnph = document.getElementById('fdone-placeholder');
+    if (fdph)  fdph.style.display  = fvis('fernando-doing') ? 'none' : 'block';
+    if (fdnph) fdnph.style.display = fvis('fernando-done')  ? 'none' : 'block';
+  }
+
+  document.querySelectorAll('.f-card .btn-doing').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const card = this.closest('.kanban-card');
+      if (card.closest('#fernando-doing')) return;
+      document.getElementById('fernando-doing').appendChild(card);
+      card.style.borderColor = '#fbbf24';
+      setTimeout(() => card.style.borderColor = '', 800);
+      updateFernandoCounts();
+    });
+  });
+
+  document.querySelectorAll('.f-card .btn-done').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const card = this.closest('.kanban-card');
+      if (card.closest('#fernando-done')) return;
+      document.getElementById('fernando-done').appendChild(card);
+      card.style.borderColor = '#34d399';
+      card.style.opacity = '.6';
+      setTimeout(() => card.style.borderColor = '', 800);
+      updateFernandoCounts();
+    });
+  });
+
+  updateFernandoCounts();
 </script>
 </body>
 </html>
