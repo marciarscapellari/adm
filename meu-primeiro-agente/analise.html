@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Análise Semanal — Márcia Capellari</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0f0f1a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    header p { color: #94a3b8; margin-top: .4rem; font-size: .95rem; }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .card {
+      background: #1e1e2e;
+      border-radius: 16px;
+      padding: 1.4rem 1.2rem;
+      border: 1px solid #2d2d45;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .card.total::before  { background: linear-gradient(90deg,#a78bfa,#60a5fa); }
+    .card.urgent::before { background: #ef4444; }
+    .card.import::before { background: #f59e0b; }
+    .card.wait::before   { background: #10b981; }
+
+    .card .label { font-size: .78rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .4rem; }
+    .card .value { font-size: 2.2rem; font-weight: 800; }
+    .card .sub   { font-size: .82rem; color: #64748b; margin-top: .2rem; }
+    .card.total .value  { color: #a78bfa; }
+    .card.urgent .value { color: #f87171; }
+    .card.import .value { color: #fbbf24; }
+    .card.wait .value   { color: #34d399; }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #2d2d45;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .chart-card {
+      background: #1e1e2e;
+      border: 1px solid #2d2d45;
+      border-radius: 16px;
+      padding: 1.4rem;
+    }
+    .chart-card h3 { font-size: .9rem; color: #94a3b8; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: .05em; }
+    .chart-wrapper { position: relative; height: 220px; }
+
+    /* TODAY */
+    .today-block {
+      background: #1e1e2e;
+      border: 1px solid #2d2d45;
+      border-radius: 16px;
+      padding: 1.4rem;
+      margin-bottom: 2rem;
+    }
+    .today-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+    }
+    .today-header .date-badge {
+      background: linear-gradient(135deg,#a78bfa22,#60a5fa22);
+      border: 1px solid #a78bfa44;
+      color: #a78bfa;
+      padding: .3rem .8rem;
+      border-radius: 20px;
+      font-size: .8rem;
+      font-weight: 600;
+    }
+    .today-header .load-badge {
+      color: #94a3b8;
+      font-size: .85rem;
+    }
+
+    .task-row {
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      padding: .7rem .9rem;
+      border-radius: 10px;
+      margin-bottom: .5rem;
+      background: #16213e;
+      border-left: 3px solid transparent;
+      transition: background .2s;
+    }
+    .task-row:hover { background: #1e2a45; }
+    .task-row.urgent { border-left-color: #ef4444; }
+    .task-row.import { border-left-color: #f59e0b; }
+    .task-row.wait   { border-left-color: #10b981; }
+
+    .task-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .urgent .task-dot { background: #ef4444; }
+    .import .task-dot { background: #f59e0b; }
+    .wait   .task-dot { background: #10b981; }
+
+    .task-title { flex: 1; font-size: .88rem; color: #e2e8f0; }
+    .task-meta  { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+
+    .badge {
+      font-size: .72rem;
+      padding: .2rem .55rem;
+      border-radius: 20px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .badge.time   { background: #1e293b; color: #94a3b8; }
+    .badge.area   { background: #1e2a45; color: #60a5fa; }
+    .badge.tag-u  { background: #7f1d1d; color: #fca5a5; }
+    .badge.tag-i  { background: #78350f; color: #fde68a; }
+    .badge.tag-w  { background: #064e3b; color: #6ee7b7; }
+
+    .task-link {
+      color: #475569;
+      font-size: .75rem;
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .task-link:hover { color: #a78bfa; }
+
+    /* WEEK TABLE */
+    .week-table-wrap {
+      background: #1e1e2e;
+      border: 1px solid #2d2d45;
+      border-radius: 16px;
+      padding: 1.4rem;
+      margin-bottom: 2rem;
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    thead th {
+      text-align: left;
+      padding: .6rem .8rem;
+      color: #64748b;
+      font-weight: 600;
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      border-bottom: 1px solid #2d2d45;
+    }
+    tbody tr { border-bottom: 1px solid #1e2535; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #16213e; }
+    tbody td { padding: .65rem .8rem; color: #cbd5e1; vertical-align: middle; }
+    tbody td a { color: #60a5fa; text-decoration: none; font-size: .78rem; }
+    tbody td a:hover { text-decoration: underline; }
+
+    /* DAILY LOAD */
+    .day-bars {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .day-bar-card {
+      background: #1e1e2e;
+      border: 1px solid #2d2d45;
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .day-bar-card .day-name { font-size: .78rem; color: #94a3b8; margin-bottom: .6rem; font-weight: 600; text-transform: uppercase; }
+    .day-bar-card .day-load { font-size: 1.3rem; font-weight: 700; color: #e2e8f0; margin-bottom: .5rem; }
+    .bar-track { background: #0f172a; border-radius: 4px; height: 6px; overflow: hidden; }
+    .bar-fill  { height: 100%; border-radius: 4px; transition: width .6s ease; }
+    .day-bar-card.today { border-color: #a78bfa44; }
+    .day-bar-card.today .day-name { color: #a78bfa; }
+
+    /* INSIGHT */
+    .insight-card {
+      background: linear-gradient(135deg, #1a1a35, #1e2a3a);
+      border: 1px solid #a78bfa33;
+      border-radius: 16px;
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 2rem;
+    }
+    .insight-card h3 { color: #a78bfa; font-size: .85rem; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .8rem; }
+    .insight-card ul { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+    .insight-card li { font-size: .88rem; color: #cbd5e1; padding-left: 1.2rem; position: relative; }
+    .insight-card li::before { content: '→'; position: absolute; left: 0; color: #a78bfa; }
+
+    footer {
+      text-align: center;
+      color: #334155;
+      font-size: .78rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📊 Análise Semanal — Márcia Capellari</h1>
+  <p>Semana 26–31 de Maio de 2026 &nbsp;·&nbsp; Tríade do Tempo (Christian Barbosa) &nbsp;·&nbsp; Fonte: Notion</p>
+</header>
+
+<!-- CARDS SUMÁRIO -->
+<div class="grid-4">
+  <div class="card total">
+    <div class="label">Total de tarefas</div>
+    <div class="value">14</div>
+    <div class="sub">Todas "A fazer"</div>
+  </div>
+  <div class="card urgent">
+    <div class="label">🔴 Urgentes</div>
+    <div class="value">4</div>
+    <div class="sub">2h 35min · 18%</div>
+  </div>
+  <div class="card import">
+    <div class="label">🟡 Importantes</div>
+    <div class="value">7</div>
+    <div class="sub">10h 00min · 71%</div>
+  </div>
+  <div class="card wait">
+    <div class="label">🟢 Podem Esperar</div>
+    <div class="value">3</div>
+    <div class="sub">1h 25min · 11%</div>
+  </div>
+</div>
+
+<!-- GRÁFICOS -->
+<div class="section-title">📈 Análise Visual</div>
+<div class="grid-2">
+  <div class="chart-card">
+    <h3>Tríade do Tempo — Distribuição de Carga</h3>
+    <div class="chart-wrapper">
+      <canvas id="chartTriade"></canvas>
+    </div>
+  </div>
+  <div class="chart-card">
+    <h3>Tarefas por Área de Vida</h3>
+    <div class="chart-wrapper">
+      <canvas id="chartArea"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- HOJE -->
+<div class="section-title">📅 Hoje — Terça, 26 de Maio</div>
+<div class="today-block">
+  <div class="today-header">
+    <span class="date-badge">Terça-feira · 26/05/2026</span>
+    <span class="load-badge">⏱ Carga estimada: <strong>2h 05min</strong></span>
+  </div>
+
+  <div class="task-row urgent">
+    <span class="task-dot"></span>
+    <span class="task-title">Dar os encaminhamentos sobre a reunião do conselho</span>
+    <div class="task-meta">
+      <span class="badge time">45min</span>
+      <span class="badge area">Pessoal</span>
+      <span class="badge tag-u">Urgente</span>
+      <a class="task-link" href="https://www.notion.so/7b6082806a8f4245b06bd603c2db2c70?pvs=1" target="_blank">↗ Notion</a>
+    </div>
+  </div>
+
+  <div class="task-row urgent">
+    <span class="task-dot"></span>
+    <span class="task-title">Cobrar do Fernando: PDI e plano de atividades da Ana</span>
+    <div class="task-meta">
+      <span class="badge time">20min</span>
+      <span class="badge area">Pessoal</span>
+      <span class="badge tag-u">Urgente</span>
+      <a class="task-link" href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">↗ Notion</a>
+    </div>
+  </div>
+
+  <div class="task-row urgent">
+    <span class="task-dot"></span>
+    <span class="task-title">Conversar com Fernando sobre as atividades e entregas da Ana</span>
+    <div class="task-meta">
+      <span class="badge time">30min</span>
+      <span class="badge area">Pessoal</span>
+      <span class="badge tag-u">Urgente</span>
+      <a class="task-link" href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">↗ Notion</a>
+    </div>
+  </div>
+
+  <div class="task-row import">
+    <span class="task-dot"></span>
+    <span class="task-title">Agendar reunião BE8 e Cotrijal com PIT</span>
+    <div class="task-meta">
+      <span class="badge time">30min</span>
+      <span class="badge area">Pessoal</span>
+      <span class="badge tag-i">Importante</span>
+      <a class="task-link" href="https://www.notion.so/8496980537ac456796ee20e53f6ebfee?pvs=1" target="_blank">↗ Notion</a>
+    </div>
+  </div>
+</div>
+
+<!-- SEMANA COMPLETA -->
+<div class="section-title">🗓 Plano da Semana</div>
+<div class="week-table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Tarefa</th>
+        <th>Categoria</th>
+        <th>Área</th>
+        <th>Estimativa</th>
+        <th>Dia sugerido</th>
+        <th>Link</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Dar os encaminhamentos sobre a reunião do conselho</td><td><span class="badge tag-u">🔴 Urgente</span></td><td>Pessoal</td><td>45min</td><td>Ter 26/05</td><td><a href="https://www.notion.so/7b6082806a8f4245b06bd603c2db2c70?pvs=1" target="_blank">↗</a></td></tr>
+      <tr><td>2</td><td>Cobrar do Fernando: PDI e plano de atividades da Ana</td><td><span class="badge tag-u">🔴 Urgente</span></td><td>Pessoal</td><td>20min</td><td>Ter 26/05</td><td><a href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">↗</a></td></tr>
+      <tr><td>3</td><td>Conversar com Fernando sobre as atividades e entregas da Ana</td><td><span class="badge tag-u">🔴 Urgente</span></td><td>Pessoal</td><td>30min</td><td>Ter 26/05</td><td><a href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">↗</a></td></tr>
+      <tr><td>4</td><td>Revisão cirurgia boca</td><td><span class="badge tag-u">🔴 Urgente</span></td><td>Saúde</td><td>1h</td><td>Qua 27/05</td><td><a href="https://www.notion.so/06aef5e5089b475fbcb6550c45f8afd6?pvs=1" target="_blank">↗</a></td></tr>
+      <tr><td>5</td><td>Agendar reunião BE8 e Cotrijal com PIT</td><td><span class="badge tag-i">🟡 Importante</span></td><td>Pessoal</td><td>30min</td><td>Ter 26/05</td><td><a href="https://www.notion.so/8496980537ac456796ee20e53f6ebfee?pvs=1" target="_blank">↗</a></td></tr>
+      <tr><td>6</td><td>Falar com Janete — expansão RS</td><td><span class="badge tag-i">🟡 Importante</span></td><td>Pessoal</td><td>30min</td><td>Qua 27/05</td><td><a href="https://www.notion.so/8842341e1fc84ad0946f0a21e418f7af?pvs=1" target="_blank">↗</a></td></tr>
+      <tr><td>7</td><td>Ler o material dos processos elaborados pela Elvira</td><td><span class="badge tag-i">🟡 Importante</span></td><td>Pessoal</td><td>1h</td><td>Qua 27/05</td><td><a href="https://www.notion.so/9ff59c17d3dd420fa5c2e31fdca389f9?pvs=1" target="_blank">↗</a></td></tr>
+      <tr><td>8</td><td>Consulta psiquiatra</td><td><span class="badge tag-i">🟡 Importante</span></td><td>Saúde</td><td>1h</td><td>Qui 28/05</td><td><a href="https://www.notion.so/0ed35494c21b4f4e841d4c081c6328cf?pvs=1" target="_blank">↗</a></td></tr>
+      <tr><td>9</td><td>Exames e revisão médica</td><td><span class="badge tag-i">🟡 Importante</span></td><td>Saúde</td><td>2h</td><td>Qui 28/05</td><td><a href="https://www.notion.so/5d03134317f04a52a2dbad0c1ec5635b?pvs=1" target="_blank">↗</a></td></tr>
+      <tr><td>10</td><td>Treinamento das pessoas/embaixadoras da marca</td><td><span class="badge tag-i">🟡 Importante</span></td><td>Pessoal</td><td>2h</td><td>Sex 29/05</td><td><a href="https://www.notion.so/daf0f839ccdc4e6692fcb2a1babf5e1a?pvs=1" target="_blank">↗</a></td></tr>
+      <tr><td>11</td><td>Construir relatório de impacto do Instituto</td><td><span class="badge tag-i">🟡 Importante</span></td><td>Pessoal</td><td>3h</td><td>Sex 29/05</td><td><a href="https://www.notion.so/e5f7752aad6a4f00ba83b1f6c4ac3d2c?pvs=1" target="_blank">↗</a></td></tr>
+      <tr><td>12</td><td>Carteira de identidade do Pedro</td><td><span class="badge tag-w">🟢 Pode Esperar</span></td><td>Família</td><td>1h</td><td>Sex 29/05</td><td><a href="https://www.notion.so/91a146420eb64fb8829330391dfffb04?pvs=1" target="_blank">↗</a></td></tr>
+      <tr><td>13</td><td>Agendar dermatologista</td><td><span class="badge tag-w">🟢 Pode Esperar</span></td><td>Saúde</td><td>15min</td><td>Sex 29/05</td><td><a href="https://www.notion.so/9de01b3d16414d8e8563d1a5c9fc4f75?pvs=1" target="_blank">↗</a></td></tr>
+      <tr><td>14</td><td>Agendar depilação</td><td><span class="badge tag-w">🟢 Pode Esperar</span></td><td>Pessoal</td><td>10min</td><td>Sex 29/05</td><td><a href="https://www.notion.so/49256cb3505e4737ad5598485f4d11bf?pvs=1" target="_blank">↗</a></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- CARGA POR DIA -->
+<div class="section-title">⚡ Carga de Trabalho por Dia</div>
+<div class="day-bars">
+  <div class="day-bar-card today">
+    <div class="day-name">Ter · 26/05</div>
+    <div class="day-load">2h 05min</div>
+    <div class="bar-track"><div class="bar-fill" style="width:37%;background:linear-gradient(90deg,#a78bfa,#818cf8)"></div></div>
+  </div>
+  <div class="day-bar-card">
+    <div class="day-name">Qua · 27/05</div>
+    <div class="day-load">2h 30min</div>
+    <div class="bar-track"><div class="bar-fill" style="width:44%;background:linear-gradient(90deg,#60a5fa,#38bdf8)"></div></div>
+  </div>
+  <div class="day-bar-card">
+    <div class="day-name">Qui · 28/05</div>
+    <div class="day-load">3h 00min</div>
+    <div class="bar-track"><div class="bar-fill" style="width:53%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div>
+  </div>
+  <div class="day-bar-card">
+    <div class="day-name">Sex · 29/05</div>
+    <div class="day-load">6h 25min</div>
+    <div class="bar-track"><div class="bar-fill" style="width:100%;background:linear-gradient(90deg,#ef4444,#f97316)"></div></div>
+  </div>
+  <div class="day-bar-card">
+    <div class="day-name">TOTAL</div>
+    <div class="day-load" style="color:#a78bfa">14h 00min</div>
+    <div class="bar-track"><div class="bar-fill" style="width:100%;background:linear-gradient(90deg,#a78bfa,#34d399)"></div></div>
+  </div>
+</div>
+
+<!-- INSIGHTS -->
+<div class="section-title">💡 Insights da Tríade</div>
+<div class="insight-card">
+  <h3>Análise — Christian Barbosa</h3>
+  <ul>
+    <li>Sua semana está com <strong>71% de tarefas Importantes</strong> — alinhada com a meta ideal da Tríade (70/20/10). Parabéns!</li>
+    <li>As 4 tarefas <strong>Urgentes</strong> (18%) são reativas e envolvem follow-ups de pessoas — idealmente delegáveis ou antecipáveis.</li>
+    <li><strong>Nenhuma tarefa tem prazo definido</strong> no Notion, o que reduz a previsibilidade. Adicionar datas aumenta a gestão de energia.</li>
+    <li>Sexta-feira está <strong>sobrecarregada (6h25min)</strong>. Considere antecipar o relatório do Instituto para quinta.</li>
+    <li>Área de <strong>Saúde concentra 4 tarefas</strong> — prioridade pessoal importante que não deve ser postergada mais.</li>
+  </ul>
+</div>
+
+<footer>Gerado em 26/05/2026 · Dados: Notion — Tarefas Pessoais Márcia · Metodologia: Tríade do Tempo (Christian Barbosa)</footer>
+
+<script>
+  const triade = new Chart(document.getElementById('chartTriade'), {
+    type: 'doughnut',
+    data: {
+      labels: ['🟡 Importantes (71%)', '🔴 Urgentes (18%)', '⚪ Circunstanciais (11%)'],
+      datasets: [{
+        data: [600, 155, 85],
+        backgroundColor: ['#f59e0b', '#ef4444', '#475569'],
+        borderColor: '#1e1e2e',
+        borderWidth: 3,
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: '#94a3b8', font: { size: 11 }, padding: 14, boxWidth: 12 }
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const mins = ctx.raw;
+              const h = Math.floor(mins/60), m = mins%60;
+              return ` ${h}h ${m.toString().padStart(2,'0')}min`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  const area = new Chart(document.getElementById('chartArea'), {
+    type: 'bar',
+    data: {
+      labels: ['Pessoal', 'Saúde', 'Família'],
+      datasets: [{
+        label: 'Tarefas',
+        data: [9, 4, 1],
+        backgroundColor: ['#a78bfa', '#34d399', '#60a5fa'],
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (ctx) => ` ${ctx.raw} tarefa${ctx.raw > 1 ? 's' : ''}` } }
+      },
+      scales: {
+        x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e2535' } },
+        y: {
+          ticks: { color: '#94a3b8', stepSize: 1 },
+          grid: { color: '#1e2535' },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
+</body>
+</html>
