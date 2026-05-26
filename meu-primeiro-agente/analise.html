@@ -235,6 +235,140 @@
       font-size: .78rem;
       margin-top: 1rem;
     }
+
+    /* DASHBOARD DE ATUALIZAÇÃO */
+    .update-dashboard {
+      background: #1e1e2e;
+      border: 1px solid #2d2d45;
+      border-radius: 16px;
+      padding: 1.6rem;
+      margin-bottom: 2rem;
+    }
+    .update-dashboard .db-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+      gap: .8rem;
+    }
+    .update-dashboard .db-header h2 {
+      font-size: 1rem;
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+    .open-notion-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      color: #fff;
+      font-weight: 600;
+      font-size: .85rem;
+      padding: .5rem 1.1rem;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: opacity .2s, transform .1s;
+    }
+    .open-notion-btn:hover { opacity: .88; transform: translateY(-1px); }
+
+    .filter-bar {
+      display: flex;
+      gap: .5rem;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: #16213e;
+      border: 1px solid #2d2d45;
+      color: #94a3b8;
+      font-size: .78rem;
+      padding: .35rem .8rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .filter-btn:hover, .filter-btn.active { background: #a78bfa22; border-color: #a78bfa66; color: #a78bfa; }
+    .filter-btn.f-urgent.active  { background: #ef444422; border-color: #ef444466; color: #f87171; }
+    .filter-btn.f-import.active  { background: #f59e0b22; border-color: #f59e0b66; color: #fbbf24; }
+    .filter-btn.f-wait.active    { background: #10b98122; border-color: #10b98166; color: #34d399; }
+
+    .kanban-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .kanban-col {
+      background: #13131f;
+      border: 1px solid #2d2d45;
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .kanban-col-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .9rem;
+    }
+    .kanban-col-header span { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+    .kanban-count {
+      background: #1e2535;
+      color: #94a3b8;
+      font-size: .72rem;
+      font-weight: 700;
+      padding: .15rem .5rem;
+      border-radius: 10px;
+    }
+    .col-todo    .kanban-col-header span { color: #f87171; }
+    .col-doing   .kanban-col-header span { color: #fbbf24; }
+    .col-done    .kanban-col-header span { color: #34d399; }
+
+    .kanban-card {
+      background: #1e1e2e;
+      border: 1px solid #2d2d45;
+      border-radius: 10px;
+      padding: .8rem;
+      margin-bottom: .6rem;
+      cursor: pointer;
+      transition: border-color .2s, transform .15s;
+      position: relative;
+    }
+    .kanban-card:hover { border-color: #a78bfa66; transform: translateY(-2px); }
+    .kanban-card.hidden { display: none; }
+
+    .kcard-title { font-size: .84rem; color: #e2e8f0; margin-bottom: .5rem; line-height: 1.4; }
+    .kcard-meta  { display: flex; gap: .4rem; flex-wrap: wrap; align-items: center; }
+
+    .kcard-actions {
+      display: flex;
+      gap: .4rem;
+      margin-top: .7rem;
+      border-top: 1px solid #2d2d45;
+      padding-top: .6rem;
+    }
+    .action-btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .3rem;
+      font-size: .72rem;
+      font-weight: 600;
+      padding: .35rem .5rem;
+      border-radius: 7px;
+      text-decoration: none;
+      transition: opacity .2s;
+      border: none;
+      cursor: pointer;
+    }
+    .action-btn:hover { opacity: .8; }
+    .btn-open   { background: #1e2a45; color: #60a5fa; }
+    .btn-doing  { background: #78350f44; color: #fbbf24; }
+    .btn-done   { background: #064e3b44; color: #34d399; }
+
+    .priority-pip {
+      width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; display: inline-block;
+    }
   </style>
 </head>
 <body>
@@ -402,6 +536,238 @@
   </div>
 </div>
 
+<!-- DASHBOARD DE ATUALIZAÇÃO -->
+<div class="section-title">🚀 Dashboard — Atualizar Tarefas no Notion</div>
+<div class="update-dashboard">
+  <div class="db-header">
+    <h2>Clique em uma tarefa para abrir e atualizar direto no Notion</h2>
+    <a class="open-notion-btn" href="https://www.notion.so/cf9c53c195b748428114a0fe7dde2dc3" target="_blank">
+      ↗ Abrir Base Completa no Notion
+    </a>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterKanban('all', this)">Todas (14)</button>
+    <button class="filter-btn f-urgent" onclick="filterKanban('urgent', this)">🔴 Urgentes (4)</button>
+    <button class="filter-btn f-import" onclick="filterKanban('import', this)">🟡 Importantes (7)</button>
+    <button class="filter-btn f-wait"   onclick="filterKanban('wait', this)">🟢 Podem Esperar (3)</button>
+  </div>
+
+  <div class="kanban-board">
+    <!-- A FAZER -->
+    <div class="kanban-col col-todo">
+      <div class="kanban-col-header">
+        <span>⬜ A Fazer</span>
+        <span class="kanban-count" id="cnt-todo">14</span>
+      </div>
+
+      <div class="kanban-card" data-cat="urgent">
+        <div class="kcard-title">Dar os encaminhamentos sobre a reunião do conselho</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#ef4444"></span>
+          <span class="badge time">45min</span><span class="badge area">Pessoal</span><span class="badge tag-u">Urgente</span>
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/7b6082806a8f4245b06bd603c2db2c70?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/7b6082806a8f4245b06bd603c2db2c70?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/7b6082806a8f4245b06bd603c2db2c70?pvs=1" target="_blank">✓ Concluída</a>
+        </div>
+      </div>
+
+      <div class="kanban-card" data-cat="urgent">
+        <div class="kcard-title">Cobrar do Fernando: PDI e plano de atividades da Ana</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#ef4444"></span>
+          <span class="badge time">20min</span><span class="badge area">Pessoal</span><span class="badge tag-u">Urgente</span>
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/e7758b7d623e4add95f7081d4b46c315?pvs=1" target="_blank">✓ Concluída</a>
+        </div>
+      </div>
+
+      <div class="kanban-card" data-cat="urgent">
+        <div class="kcard-title">Conversar com Fernando sobre as atividades e entregas da Ana</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#ef4444"></span>
+          <span class="badge time">30min</span><span class="badge area">Pessoal</span><span class="badge tag-u">Urgente</span>
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/7187e7b0597443f9bdb36c68ffdb5890?pvs=1" target="_blank">✓ Concluída</a>
+        </div>
+      </div>
+
+      <div class="kanban-card" data-cat="urgent">
+        <div class="kcard-title">Revisão cirurgia boca</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#ef4444"></span>
+          <span class="badge time">1h</span><span class="badge area">Saúde</span><span class="badge tag-u">Urgente</span>
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/06aef5e5089b475fbcb6550c45f8afd6?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/06aef5e5089b475fbcb6550c45f8afd6?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/06aef5e5089b475fbcb6550c45f8afd6?pvs=1" target="_blank">✓ Concluída</a>
+        </div>
+      </div>
+
+      <div class="kanban-card" data-cat="import">
+        <div class="kcard-title">Agendar reunião BE8 e Cotrijal com PIT</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#f59e0b"></span>
+          <span class="badge time">30min</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span>
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/8496980537ac456796ee20e53f6ebfee?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/8496980537ac456796ee20e53f6ebfee?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/8496980537ac456796ee20e53f6ebfee?pvs=1" target="_blank">✓ Concluída</a>
+        </div>
+      </div>
+
+      <div class="kanban-card" data-cat="import">
+        <div class="kcard-title">Falar com Janete — expansão RS</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#f59e0b"></span>
+          <span class="badge time">30min</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span>
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/8842341e1fc84ad0946f0a21e418f7af?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/8842341e1fc84ad0946f0a21e418f7af?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/8842341e1fc84ad0946f0a21e418f7af?pvs=1" target="_blank">✓ Concluída</a>
+        </div>
+      </div>
+
+      <div class="kanban-card" data-cat="import">
+        <div class="kcard-title">Ler o material dos processos elaborados pela Elvira</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#f59e0b"></span>
+          <span class="badge time">1h</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span>
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/9ff59c17d3dd420fa5c2e31fdca389f9?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/9ff59c17d3dd420fa5c2e31fdca389f9?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/9ff59c17d3dd420fa5c2e31fdca389f9?pvs=1" target="_blank">✓ Concluída</a>
+        </div>
+      </div>
+
+      <div class="kanban-card" data-cat="import">
+        <div class="kcard-title">Consulta psiquiatra</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#f59e0b"></span>
+          <span class="badge time">1h</span><span class="badge area">Saúde</span><span class="badge tag-i">Importante</span>
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/0ed35494c21b4f4e841d4c081c6328cf?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/0ed35494c21b4f4e841d4c081c6328cf?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/0ed35494c21b4f4e841d4c081c6328cf?pvs=1" target="_blank">✓ Concluída</a>
+        </div>
+      </div>
+
+      <div class="kanban-card" data-cat="import">
+        <div class="kcard-title">Exames e revisão médica</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#f59e0b"></span>
+          <span class="badge time">2h</span><span class="badge area">Saúde</span><span class="badge tag-i">Importante</span>
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/5d03134317f04a52a2dbad0c1ec5635b?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/5d03134317f04a52a2dbad0c1ec5635b?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/5d03134317f04a52a2dbad0c1ec5635b?pvs=1" target="_blank">✓ Concluída</a>
+        </div>
+      </div>
+
+      <div class="kanban-card" data-cat="import">
+        <div class="kcard-title">Treinamento das pessoas/embaixadoras da marca</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#f59e0b"></span>
+          <span class="badge time">2h</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span>
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/daf0f839ccdc4e6692fcb2a1babf5e1a?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/daf0f839ccdc4e6692fcb2a1babf5e1a?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/daf0f839ccdc4e6692fcb2a1babf5e1a?pvs=1" target="_blank">✓ Concluída</a>
+        </div>
+      </div>
+
+      <div class="kanban-card" data-cat="import">
+        <div class="kcard-title">Construir relatório de impacto do Instituto</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#f59e0b"></span>
+          <span class="badge time">3h</span><span class="badge area">Pessoal</span><span class="badge tag-i">Importante</span>
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/e5f7752aad6a4f00ba83b1f6c4ac3d2c?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/e5f7752aad6a4f00ba83b1f6c4ac3d2c?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/e5f7752aad6a4f00ba83b1f6c4ac3d2c?pvs=1" target="_blank">✓ Concluída</a>
+        </div>
+      </div>
+
+      <div class="kanban-card" data-cat="wait">
+        <div class="kcard-title">Carteira de identidade do Pedro</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#10b981"></span>
+          <span class="badge time">1h</span><span class="badge area">Família</span><span class="badge tag-w">Pode Esperar</span>
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/91a146420eb64fb8829330391dfffb04?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/91a146420eb64fb8829330391dfffb04?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/91a146420eb64fb8829330391dfffb04?pvs=1" target="_blank">✓ Concluída</a>
+        </div>
+      </div>
+
+      <div class="kanban-card" data-cat="wait">
+        <div class="kcard-title">Agendar dermatologista</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#10b981"></span>
+          <span class="badge time">15min</span><span class="badge area">Saúde</span><span class="badge tag-w">Pode Esperar</span>
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/9de01b3d16414d8e8563d1a5c9fc4f75?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/9de01b3d16414d8e8563d1a5c9fc4f75?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/9de01b3d16414d8e8563d1a5c9fc4f75?pvs=1" target="_blank">✓ Concluída</a>
+        </div>
+      </div>
+
+      <div class="kanban-card" data-cat="wait">
+        <div class="kcard-title">Agendar depilação</div>
+        <div class="kcard-meta">
+          <span class="priority-pip" style="background:#10b981"></span>
+          <span class="badge time">10min</span><span class="badge area">Pessoal</span><span class="badge tag-w">Pode Esperar</span>
+        </div>
+        <div class="kcard-actions">
+          <a class="action-btn btn-open"  href="https://www.notion.so/49256cb3505e4737ad5598485f4d11bf?pvs=1" target="_blank">↗ Abrir</a>
+          <a class="action-btn btn-doing" href="https://www.notion.so/49256cb3505e4737ad5598485f4d11bf?pvs=1" target="_blank">▶ Em andamento</a>
+          <a class="action-btn btn-done"  href="https://www.notion.so/49256cb3505e4737ad5598485f4d11bf?pvs=1" target="_blank">✓ Concluída</a>
+        </div>
+      </div>
+    </div><!-- /col-todo -->
+
+    <!-- EM ANDAMENTO (vazia inicialmente) -->
+    <div class="kanban-col col-doing">
+      <div class="kanban-col-header">
+        <span>🟡 Em Andamento</span>
+        <span class="kanban-count" id="cnt-doing">0</span>
+      </div>
+      <div id="doing-placeholder" style="color:#475569;font-size:.82rem;text-align:center;padding:1.5rem 0;">
+        Nenhuma tarefa em andamento
+      </div>
+    </div>
+
+    <!-- CONCLUÍDAS (vazia inicialmente) -->
+    <div class="kanban-col col-done">
+      <div class="kanban-col-header">
+        <span>✅ Concluídas</span>
+        <span class="kanban-count" id="cnt-done">0</span>
+      </div>
+      <div id="done-placeholder" style="color:#475569;font-size:.82rem;text-align:center;padding:1.5rem 0;">
+        Nenhuma tarefa concluída ainda
+      </div>
+    </div>
+  </div><!-- /kanban-board -->
+</div><!-- /update-dashboard -->
+
 <!-- INSIGHTS -->
 <div class="section-title">💡 Insights da Tríade</div>
 <div class="insight-card">
@@ -481,6 +847,64 @@
       }
     }
   });
+</script>
+
+<script>
+  /* ── FILTRO KANBAN ── */
+  function filterKanban(cat, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.kanban-card').forEach(card => {
+      card.classList.toggle('hidden', cat !== 'all' && card.dataset.cat !== cat);
+    });
+    updateCounts();
+  }
+
+  /* ── CONTADORES ── */
+  function updateCounts() {
+    const vis = (col) => col.querySelectorAll('.kanban-card:not(.hidden)').length;
+    document.getElementById('cnt-todo').textContent  = vis(document.querySelector('.col-todo'));
+    document.getElementById('cnt-doing').textContent = vis(document.querySelector('.col-doing'));
+    document.getElementById('cnt-done').textContent  = vis(document.querySelector('.col-done'));
+    togglePlaceholder('doing-placeholder', '.col-doing');
+    togglePlaceholder('done-placeholder',  '.col-done');
+  }
+
+  function togglePlaceholder(id, colSel) {
+    const col   = document.querySelector(colSel);
+    const ph    = document.getElementById(id);
+    const cards = col.querySelectorAll('.kanban-card:not(.hidden)');
+    if (ph) ph.style.display = cards.length ? 'none' : 'block';
+  }
+
+  /* ── MOVER CARD LOCALMENTE (feedback visual) ── */
+  document.querySelectorAll('.action-btn.btn-doing').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      const card = this.closest('.kanban-card');
+      const col  = document.querySelector('.col-doing');
+      const ph   = document.getElementById('doing-placeholder');
+      if (card.closest('.col-doing')) return; // já está lá
+      col.appendChild(card);
+      card.style.borderColor = '#fbbf24';
+      setTimeout(() => card.style.borderColor = '', 800);
+      updateCounts();
+    });
+  });
+
+  document.querySelectorAll('.action-btn.btn-done').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      const card = this.closest('.kanban-card');
+      const col  = document.querySelector('.col-done');
+      if (card.closest('.col-done')) return;
+      col.appendChild(card);
+      card.style.borderColor = '#34d399';
+      card.style.opacity = '.6';
+      setTimeout(() => card.style.borderColor = '', 800);
+      updateCounts();
+    });
+  });
+
+  updateCounts();
 </script>
 </body>
 </html>
