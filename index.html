@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instituto Aliança — Sistema de Gestão</title>
+<style>
+  :root {
+    --yellow:#F5C518;--yellowD:#D4A800;--black:#080808;--surface:#111;
+    --card:#181818;--border:#242424;--border2:#2E2E2E;--text:#F0EAD6;
+    --muted:#666;--dim:#999;--green:#4CAF50;--red:#F44336;
+    --blue:#2196F3;--purple:#9C27B0;--orange:#FF9800;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Georgia,serif;background:var(--black);color:var(--text);display:flex;min-height:100vh;font-size:14px}
+  /* SIDEBAR */
+  #sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100}
+  .logo{padding:22px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .logo-icon{width:36px;height:36px;background:var(--yellow);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#000;flex-shrink:0}
+  .logo-text{font-size:13px;font-weight:700;color:var(--text);line-height:1.1}
+  .logo-sub{font-size:9px;color:var(--muted);font-family:monospace;letter-spacing:1.5px}
+  nav{padding:14px 10px;flex:1}
+  .nav-label{font-size:9px;color:var(--muted);font-family:monospace;letter-spacing:2px;padding:0 8px;margin:12px 0 6px}
+  .nav-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;border-radius:7px;border:none;border-left:3px solid transparent;background:transparent;color:var(--dim);cursor:pointer;font-size:13px;font-family:Georgia,serif;text-align:left;margin-bottom:2px;transition:all .15s}
+  .nav-btn:hover{background:#ffffff09;color:var(--text)}
+  .nav-btn.active{background:#F5C51818;color:var(--yellow);border-left-color:var(--yellow)}
+  .nav-icon{font-size:15px;width:20px;text-align:center}
+  .sidebar-bottom{padding:14px 16px;border-top:1px solid var(--border)}
+  .week-widget{font-size:10px;color:var(--muted);font-family:monospace;letter-spacing:1px;margin-bottom:8px}
+  /* MAIN */
+  #main{margin-left:220px;flex:1;padding:30px 36px;max-width:calc(100vw - 220px)}
+  /* PAGE */
+  .page{display:none}.page.active{display:block}
+  .page-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border2)}
+  .page-title{font-size:22px;font-weight:700;color:var(--text)}
+  .page-sub{font-size:12px;color:var(--muted);margin-top:4px}
+  /* CARDS */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 22px}
+  .card+.card{margin-top:14px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  /* LABELS */
+  .slabel{font-size:10px;font-family:monospace;letter-spacing:2.5px;color:var(--muted);margin-bottom:8px;text-transform:uppercase}
+  /* BTNS */
+  .btn{border-radius:7px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:monospace;border:none;transition:all .15s}
+  .btn-primary{background:var(--yellow);color:#000}
+  .btn-primary:hover{background:var(--yellowD)}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border2)}
+  .btn-ghost:hover{color:var(--text);border-color:var(--dim)}
+  .btn-danger{background:#F4433618;color:var(--red);border:1px solid #F4433633}
+  .btn-sm{padding:5px 12px;font-size:11px}
+  /* PILLS */
+  .pill{border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;display:inline-block;white-space:nowrap}
+  /* BARS */
+  .bar-track{background:#2A2A2A;border-radius:4px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:4px;transition:width .7s ease}
+  /* CHECKBOX */
+  .check-btn{width:22px;height:22px;border-radius:6px;border:2px solid var(--border2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;flex-shrink:0;transition:all .15s}
+  .check-btn.done{background:var(--green);border-color:var(--green)}
+  /* RING SVG */
+  .ring-wrap{position:relative;flex-shrink:0}
+  .ring-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:monospace;font-weight:700}
+  /* MODAL */
+  .overlay{display:none;position:fixed;inset:0;background:#000000cc;z-index:200;align-items:center;justify-content:center;padding:20px}
+  .overlay.open{display:flex}
+  .modal{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:26px 30px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+  .modal-title{font-size:16px;font-weight:700}
+  .modal-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+  /* FORM */
+  .form-group{margin-bottom:14px}
+  .form-label{font-size:10px;font-family:monospace;letter-spacing:1.5px;color:var(--muted);margin-bottom:5px;display:block}
+  .form-input,.form-select,.form-textarea{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;font-family:Georgia,serif;outline:none}
+  .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--yellow)}
+  .form-textarea{resize:vertical;min-height:70px}
+  /* MISC */
+  .tag{background:#ffffff10;color:var(--dim);border-radius:5px;padding:3px 9px;font-size:11px;display:inline-block}
+  .alert-red{background:#F4433618;border:1px solid #F4433633;border-radius:10px;padding:14px 18px;color:#FF8A80}
+  .hero-bar{background:linear-gradient(135deg,#F5C51820 0%,transparent 60%);border:1px solid #F5C51833;border-radius:14px;padding:22px 28px;margin-bottom:22px;position:relative;overflow:hidden}
+  .empty-state{text-align:center;padding:48px 0;color:var(--muted)}
+  .empty-icon{font-size:36px;margin-bottom:12px}
+  input[type=range]{accent-color:var(--yellow);width:100%}
+  .divider{border:none;border-top:1px solid var(--border);margin:16px 0}
+  /* SCROLLBAR */
+  ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="logo">
+    <div class="logo-icon">A</div>
+    <div><div class="logo-text">Instituto Aliança</div><div class="logo-sub">GESTÃO 2026</div></div>
+  </div>
+  <nav>
+    <div class="nav-label">VISÃO GERAL</div>
+    <button class="nav-btn active" onclick="navigate('dashboard')"><span class="nav-icon">⬛</span>Dashboard</button>
+    <div class="nav-label">ESTRATÉGICO</div>
+    <button class="nav-btn" onclick="navigate('kpis')"><span class="nav-icon">📊</span>KPIs 2026</button>
+    <button class="nav-btn" onclick="navigate('projetos')"><span class="nav-icon">🚀</span>Projetos</button>
+    <button class="nav-btn" onclick="navigate('combinados')"><span class="nav-icon">📋</span>Combinados</button>
+    <button class="nav-btn" onclick="navigate('acoes')"><span class="nav-icon">✅</span>Ações</button>
+    <div class="nav-label">EXECUÇÃO</div>
+    <button class="nav-btn" onclick="navigate('rotina')"><span class="nav-icon">☀️</span>Rotina do Dia</button>
+    <button class="nav-btn" onclick="navigate('equipe')"><span class="nav-icon">👥</span>Equipe</button>
+    <button class="nav-btn" onclick="navigate('financeiro')"><span class="nav-icon">💰</span>Financeiro</button>
+    <button class="nav-btn" onclick="navigate('associados')"><span class="nav-icon">🤝</span>Associados</button>
+    <div class="nav-label">MODELAGEM</div>
+    <button class="nav-btn" onclick="navigate('modelagem')"><span class="nav-icon">📈</span>Aliança — Modelo</button>
+    <button class="nav-btn" onclick="navigate('silo')"><span class="nav-icon">🏢</span>Silo — Modelo</button>
+    <div class="nav-label">REGISTROS</div>
+    <button class="nav-btn" onclick="navigate('atas')"><span class="nav-icon">📝</span>Atas & Reuniões</button>
+    <div class="nav-label">CONTROLE</div>
+    <button class="nav-btn" onclick="navigate('riscos')"><span class="nav-icon">🚦</span>Painel de Riscos</button>
+    <button class="nav-btn" onclick="navigate('conselho')"><span class="nav-icon">🏛️</span>Conselho & Comitê</button>
+    <button class="nav-btn" onclick="navigate('eventos')"><span class="nav-icon">📅</span>Calendário de Eventos</button>
+    <button class="nav-btn" onclick="navigate('captacao')"><span class="nav-icon">💼</span>Funil de Captação</button>
+    <button class="nav-btn" onclick="navigate('cockpit')"><span class="nav-icon">⏰</span>Cockpit da Presidente</button>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="week-widget">SEMANA ATUAL</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div id="sidebar-ring"></div>
+      <div><div id="sidebar-pct" style="font-size:16px;font-weight:700;font-family:monospace;color:var(--yellow)">0%</div><div style="font-size:10px;color:var(--muted)">Combinados</div></div>
+    </div>
+    <div style="margin-top:10px;font-size:10px;color:var(--muted);font-family:monospace" id="today-date"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+<!-- DASHBOARD -->
+<div id="page-dashboard" class="page active">
+  <div class="hero-bar" style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px">
+    <div>
+      <div style="font-size:10px;font-family:monospace;letter-spacing:3px;color:var(--yellow);margin-bottom:5px">INSTITUTO ALIANÇA EMPRESARIAL · CONTROLE ESTRATÉGICO</div>
+      <div style="font-size:26px;font-weight:700">Painel de Gestão 2026</div>
+      <div style="font-size:12px;color:var(--dim);margin-top:4px" id="dash-sub"></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0;align-items:flex-start;padding-top:4px">
+      <button class="btn btn-ghost btn-sm" onclick="openModal('combinado')" title="Novo Combinado">📋 + Combinado</button>
+      <button class="btn btn-ghost btn-sm" onclick="openModal('acao')" title="Nova Ação">✅ + Ação</button>
+      <button class="btn btn-primary btn-sm" onclick="openModal('projeto_agil')" title="Novo Projeto">🚀 + Projeto</button>
+    </div>
+  </div>
+  <div class="grid4" id="dash-cards" style="margin-bottom:22px"></div>
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="slabel" style="margin-bottom:0">KPIs POR PILAR</div>
+        <button class="btn btn-ghost btn-sm" onclick="navigate('kpis')">Ver todos →</button>
+      </div>
+      <div id="dash-kpis"></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="slabel" style="margin-bottom:0">COMBINADOS DA SEMANA</div>
+        <button class="btn btn-ghost btn-sm" onclick="openModal('combinado')">+ Adicionar</button>
+      </div>
+      <div id="dash-combinados"></div>
+    </div>
+  </div>
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="slabel" style="margin-bottom:0">PROJETOS ESTRATÉGICOS</div>
+        <button class="btn btn-ghost btn-sm" onclick="navigate('projetos')">Gerenciar →</button>
+      </div>
+      <div id="dash-projetos"></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="slabel" style="margin-bottom:0">AÇÕES EM ABERTO</div>
+        <button class="btn btn-ghost btn-sm" onclick="openModal('acao')">+ Nova Ação</button>
+      </div>
+      <div id="dash-acoes"></div>
+    </div>
+  </div>
+  <div class="grid2" style="margin-bottom:14px">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="slabel" style="margin-bottom:0">RISCOS CRÍTICOS</div>
+        <button class="btn btn-ghost btn-sm" onclick="navigate('riscos')">Ver painel →</button>
+      </div>
+      <div id="dash-riscos"></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="slabel" style="margin-bottom:0">CAPTAÇÃO EXTERNA</div>
+        <button class="btn btn-ghost btn-sm" onclick="openModal('captacao_item')">+ Oportunidade</button>
+      </div>
+      <div id="dash-captacao-mini"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="slabel" style="margin-bottom:0">EVENTOS PRÓXIMOS</div>
+      <button class="btn btn-ghost btn-sm" onclick="openModal('evento')">+ Evento</button>
+    </div>
+    <div id="dash-eventos"></div>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div id="page-kpis" class="page">
+  <div class="page-header"><div><div class="page-title">KPIs 2026</div><div class="page-sub">Clique no valor atual para editar · salva automaticamente</div></div></div>
+  <div id="kpis-content"></div>
+</div>
+
+<!-- PROJETOS -->
+<div id="page-projetos" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Projetos Estratégicos</div><div class="page-sub">Progresso, responsáveis e prazos</div></div>
+    <button class="btn btn-primary" onclick="openModal('projeto')">+ Novo Projeto</button>
+  </div>
+  <div id="projetos-content"></div>
+</div>
+
+<!-- COMBINADOS -->
+<div id="page-combinados" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Combinados da Semana</div><div class="page-sub">Registre compromissos e acompanhe o % de execução</div></div>
+    <button class="btn btn-primary" onclick="openModal('combinado')">+ Novo Combinado</button>
+  </div>
+  <div id="week-tabs" style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap"></div>
+  <div id="exec-meter" class="card" style="margin-bottom:18px"></div>
+  <div id="combinados-content"></div>
+</div>
+
+<!-- AÇÕES -->
+<div id="page-acoes" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Ações</div><div class="page-sub">Tarefas com prazo, responsável e pilar</div></div>
+    <button class="btn btn-primary" onclick="openModal('acao')">+ Nova Ação</button>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap" id="acoes-filtros"></div>
+  <div id="acoes-content"></div>
+</div>
+
+<!-- ROTINA -->
+<div id="page-rotina" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Rotina do Dia</div><div class="page-sub">Protocolo diário de liderança · 💡 = dica estratégica</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="resetRotina()">↺ Reiniciar dia</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:20px;margin-bottom:22px" id="rotina-progress"></div>
+  <div id="rotina-content"></div>
+  <div class="card" style="margin-top:14px;background:var(--card);border-color:#F5C51833">
+    <div class="slabel" style="color:var(--yellow)">PRINCÍPIO DO DIA</div>
+    <p style="font-style:italic;color:#F0EAD6;line-height:1.7;font-size:14px">"A líder que resolve todos os problemas da equipe cria dependência. A líder que faz a equipe resolver os próprios problemas cria legado."</p>
+  </div>
+</div>
+
+<!-- EQUIPE -->
+<div id="page-equipe" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Equipe · Tarefas do Dia</div><div class="page-sub">Delegue, acompanhe e desbloqueie — sem microgerenciar</div></div>
+    <button class="btn btn-primary" onclick="openModal('tarefa')">+ Nova Tarefa</button>
+  </div>
+  <div id="equipe-content"></div>
+</div>
+
+<!-- FINANCEIRO -->
+<div id="page-financeiro" class="page">
+  <div class="page-header"><div><div class="page-title">Resultados Financeiros</div><div class="page-sub">Receita, captação e pipeline comercial</div></div></div>
+  <div class="grid2" style="margin-bottom:18px" id="fin-cards"></div>
+  <div class="card" style="margin-bottom:18px">
+    <div class="slabel">PIPELINE COMERCIAL — ASSOCIADOS</div>
+    <div id="pipeline-content"></div>
+    <button class="btn btn-ghost btn-sm" onclick="openModal('prospect')" style="margin-top:12px">+ Novo Prospect</button>
+  </div>
+  <div class="card" style="background:#1A1400;border-color:#F5C51833">
+    <div class="slabel" style="color:var(--yellow)">🚨 CAPTAÇÃO EXTERNA — FONTES PRIORITÁRIAS 2026</div>
+    <div class="grid2" id="captacao-fontes" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- ASSOCIADOS -->
+<div id="page-associados" class="page">
+  <div class="page-header"><div><div class="page-title">Engajamento & Fidelização</div><div class="page-sub">Estratégia ativa por perfil — execute, não espere</div></div></div>
+  <div class="grid4" style="margin-bottom:20px" id="perfil-tabs"></div>
+  <div class="grid2" id="associados-content"></div>
+</div>
+
+
+<!-- MODELAGEM ALIANÇA -->
+<div id="page-modelagem" class="page">
+  <div class="page-header"><div><div class="page-title">Modelagem Financeira — Instituto Aliança</div><div class="page-sub">Fluxo de caixa 2025 realizado · Orçado vs Realizado · Projeção 2026</div></div></div>
+  <div id="modelagem-content"></div>
+</div>
+<!-- SILO -->
+<div id="page-silo" class="page">
+  <div class="page-header"><div><div class="page-title">Modelagem Financeira — Silo Hub Físico</div><div class="page-sub">Orçado 2026 · Despesas compartilhadas Aliança & Silo</div></div></div>
+  <div id="silo-content"></div>
+</div>
+
+<!-- ATAS DE REUNIÃO -->
+<div id="page-atas" class="page">
+  <div class="page-header">
+    <div><div class="page-title">Atas & Reuniões</div><div class="page-sub">Histórico completo · Encaminhamentos · Decisões · Execuções</div></div>
+    <button class="btn btn-primary" onclick="openModal('ata')">+ Nova Ata</button>
+  </div>
+  <div id="atas-filtros" style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap"></div>
+  <div id="atas-stats" style="margin-bottom:18px"></div>
+  <div id="atas-content"></div>
+</div>
+
+<div id="page-riscos" class="page"><div class="page-header"><div><div class="page-title">Painel de Riscos Estratégicos</div><div class="page-sub">Semáforo dos indicadores críticos · Atualizado em tempo real</div></div></div><div id="riscos-content"></div></div>
+<div id="page-conselho" class="page"><div class="page-header"><div><div class="page-title">Conselho de Governança & Comitê</div><div class="page-sub">Gestão de relacionamento com conselheiros e comitê de PE e Inovação</div></div><button class="btn btn-primary" onclick="openModal('contato')">+ Registrar Contato</button></div><div id="conselho-content"></div></div>
+<div id="page-eventos" class="page"><div class="page-header"><div><div class="page-title">Calendário de Eventos Estratégicos</div><div class="page-sub">Meta: 60 eventos 2026 · Planeje, execute, acompanhe</div></div><button class="btn btn-primary" onclick="openModal('evento')">+ Novo Evento</button></div><div id="eventos-content"></div></div>
+<div id="page-captacao" class="page"><div class="page-header"><div><div class="page-title">Funil de Captação Externa</div><div class="page-sub">Meta R$250k · Editais · Patrocínios · Doações</div></div><button class="btn btn-primary" onclick="openModal('captacao_item')">+ Nova Oportunidade</button></div><div id="captacao-content"></div></div>
+<div id="page-cockpit" class="page"><div class="page-header"><div><div class="page-title">Cockpit da Presidente</div><div class="page-sub">Onde vai o seu tempo? Liderança vs Operação · Registro semanal</div></div></div><div id="cockpit-content"></div></div>
+</div><!-- /main -->
+
+<!-- MODALS -->
+<div class="overlay" id="modal-overlay" onclick="closeModal()">
+<div class="modal" onclick="event.stopPropagation()">
+  <div class="modal-header"><span class="modal-title" id="modal-title">Modal</span><button class="modal-close" onclick="closeModal()">✕</button></div>
+  <div id="modal-body"></div>
+</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// STATE & LOCALSTORAGE
+// ═══════════════════════════════════════════════════════
+const STORE_KEY = 'alianca_v2';
+
+const DEFAULT_STATE = {
+  kpis: [
+    {id:1,pilar:'Startups',label:'Startups conectadas',atual:57,meta:70,un:''},
+    {id:2,pilar:'Startups',label:'Startups mentoradas',atual:5,meta:16,un:''},
+    {id:3,pilar:'Startups',label:'Hackathons realizados',atual:1,meta:2,un:''},
+    {id:4,pilar:'Corporações',label:'Empresas ativas nos programas',atual:35,meta:44,un:''},
+    {id:5,pilar:'Corporações',label:'Negócios realizados no ecossistema',atual:0,meta:40,un:''},
+    {id:6,pilar:'Capital',label:'Volume de capital investido',atual:13.6,meta:16,un:'M R$'},
+    {id:7,pilar:'Cultura',label:'Eventos promovidos/apoiados',atual:18,meta:60,un:''},
+    {id:8,pilar:'Cultura',label:'Talentos formados',atual:21,meta:250,un:''},
+    {id:9,pilar:'Gestão',label:'NPS dos participantes',atual:87,meta:90,un:'%'},
+    {id:10,pilar:'Gestão',label:'Captação externa (R$)',atual:0,meta:250000,un:'R$'},
+    {id:11,pilar:'Gestão',label:'Receita anual',atual:1930885,meta:1582500,un:'R$'},
+  ],
+  projetos: [
+    {id:1,nome:'Distrito de Inovação',owner:'Márcia',status:'Em andamento',prioridade:'Alta',progresso:40,prazo:'2026-12-31',descricao:'Reconversão territorial com foco em inovação e sustentabilidade.'},
+    {id:2,nome:'Escritório de Projetos / Editais',owner:'Fabiane',status:'Em andamento',prioridade:'Alta',progresso:30,prazo:'2026-06-30',descricao:'Estruturação para captação de recursos externos.'},
+    {id:3,nome:'Innovabillity — ESG + Descarbonização',owner:'Fabiane',status:'Planejamento',prioridade:'Alta',progresso:15,prazo:'2026-09-30',descricao:'Hub de descarbonização e case vitrine de ESG.'},
+    {id:4,nome:'Programa de Mentorias — Startups',owner:'Fabiane',status:'Planejamento',prioridade:'Média',progresso:10,prazo:'2026-08-30',descricao:'Mentorias para 16 startups selecionadas.'},
+    {id:5,nome:'Fundo de Investimento Local',owner:'Márcia',status:'Monitoramento',prioridade:'Alta',progresso:85,prazo:'2026-12-31',descricao:'Atingir R$ 16M em capital investido.'},
+    {id:6,nome:'Aliança AI',owner:'Fernando',status:'Planejamento',prioridade:'Média',progresso:5,prazo:'2026-10-31',descricao:'Programa de adoção de IA no ecossistema.'},
+  ],
+  acoes: [
+    {id:1,titulo:'Reunião com atores do Distrito de Inovação',responsavel:'Márcia',prazo:'2026-04-15',pilar:'Gestão',prioridade:'Alta',feito:false},
+    {id:2,titulo:'Revisão de KPIs com Fabiane e Iasmin',responsavel:'Márcia',prazo:'2026-04-14',pilar:'Gestão',prioridade:'Alta',feito:false},
+    {id:3,titulo:'Mapeamento de editais Q2 2026',responsavel:'Fabiane',prazo:'2026-04-18',pilar:'Gestão',prioridade:'Alta',feito:false},
+    {id:4,titulo:'1:1 com Fernando — pipeline comercial',responsavel:'Márcia',prazo:'2026-04-16',pilar:'Corporações',prioridade:'Média',feito:false},
+    {id:5,titulo:'Seleção de startups para mentorias',responsavel:'Fabiane',prazo:'2026-04-20',pilar:'Startups',prioridade:'Média',feito:false},
+  ],
+  combinados: [
+    {id:1,semana:currentWeek(),descricao:'Finalizar revisão do planejamento estratégico Q2',responsavel:'Márcia',feito:false},
+    {id:2,semana:currentWeek(),descricao:'Enviar proposta para edital SEBRAE',responsavel:'Fabiane',feito:false},
+    {id:3,semana:currentWeek(),descricao:'Apresentar relatório financeiro ao conselho',responsavel:'Iasmin',feito:false},
+    {id:4,semana:currentWeek(),descricao:'Agendar visita ao terreno do Distrito',responsavel:'Márcia',feito:false},
+    {id:5,semana:currentWeek(),descricao:'Contato com 3 novos prospects comerciais',responsavel:'Fernando',feito:true},
+  ],
+  rotina_feitos: {},
+  rotina_date: '',
+  tarefas: [
+    {id:1,pessoa:'Iasmin',area:'Operações',tarefa:'Relatório de ocupação do espaço',prazo:'Hoje',feito:false,prioridade:'Alta'},
+    {id:2,pessoa:'Iasmin',area:'Financeiro',tarefa:'Fechamento financeiro da semana',prazo:'Sex',feito:false,prioridade:'Alta'},
+    {id:3,pessoa:'Fabiane',area:'Captação',tarefa:'Levantar editais FINEP e FAPERS abertos',prazo:'Hoje',feito:false,prioridade:'Alta'},
+    {id:4,pessoa:'Fabiane',area:'Planejamento',tarefa:'Atualizar planejamento estratégico Q2',prazo:'Sex',feito:false,prioridade:'Alta'},
+    {id:5,pessoa:'Fernando',area:'Comercial',tarefa:'Contato com 3 prospects novos',prazo:'Hoje',feito:true,prioridade:'Alta'},
+    {id:6,pessoa:'Fernando',area:'Retenção',tarefa:'Ligação de retenção — empresa em risco',prazo:'URGENTE',feito:false,prioridade:'Alta'},
+  ],
+  pipeline: [
+    {id:1,empresa:'Empresa Prospect A',contato:'Fernando',etapa:'Prospecção',valor:'Partner',proxima:'Reunião de apresentação'},
+    {id:2,empresa:'Empresa Prospect B',contato:'Fernando',etapa:'Proposta Enviada',valor:'Founder',proxima:'Follow-up decisão'},
+    {id:3,empresa:'Empresa Prospect C',contato:'Márcia',etapa:'Negociação',valor:'Partner',proxima:'Ajuste de condições'},
+    {id:4,empresa:'Empresa Associada X',contato:'Fernando',etapa:'Renovação em Risco',valor:'Residente',proxima:'Ligação de retenção URGENTE'},
+  ],
+  assoc_feitos: {},
+  perfil_ativo: 'Founders',
+};
+
+let S = {};
+function load(){try{const d=localStorage.getItem(STORE_KEY);S=d?JSON.parse(d):{...DEFAULT_STATE};}catch(e){S={...DEFAULT_STATE};}
+  Object.keys(DEFAULT_STATE).forEach(k=>{if(S[k]===undefined)S[k]=DEFAULT_STATE[k];});
+}
+function save(){localStorage.setItem(STORE_KEY,JSON.stringify(S));}
+
+// ═══════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════
+function currentWeek(){
+  const d=new Date();const jan4=new Date(d.getFullYear(),0,4);
+  const w=Math.ceil(((d-jan4)/86400000+jan4.getDay()+1)/7);
+  return `${d.getFullYear()}-W${String(w).padStart(2,'0')}`;
+}
+function pct(a,m){return Math.min(100,Math.round(a/m*100));}
+function fmtVal(v,u){
+  if(u==='R$'&&v>=1000000)return`R$ ${(v/1000000).toFixed(2)}M`;
+  if(u==='R$'&&v>=1000)return`R$ ${(v/1000).toFixed(0)}k`;
+  if(u==='M R$')return`R$ ${v}M`;
+  if(u==='%')return`${v}%`;
+  return String(v);
+}
+function barColor(p){return p>=100?'#4CAF50':p>=60?'#F5C518':'#F44336';}
+const PILAR_COLORS={Startups:'#F5C518',Corporações:'#2196F3',Capital:'#4CAF50',Cultura:'#9C27B0',Gestão:'#FF9800'};
+const STATUS_COLORS={'Em andamento':'#2196F3','Planejamento':'#9C27B0','Monitoramento':'#F5C518','Concluído':'#4CAF50','Pausado':'#F44336'};
+const ETAPA_COLORS={'Prospecção':'#2196F3','Proposta Enviada':'#F5C518','Negociação':'#9C27B0','Renovação em Risco':'#F44336','Fechado':'#4CAF50'};
+const PESSOA_STYLE={Iasmin:{cor:'#F5C518',bg:'#F5C51818',icon:'⚙️'},Fabiane:{cor:'#9C27B0',bg:'#9C27B018',icon:'🎯'},Fernando:{cor:'#2196F3',bg:'#2196F318',icon:'💼'}};
+const TIPO_LABELS={lideranca:'Liderança',operacao:'Operação',comercial:'Comercial',estrategia:'Estratégia',financeiro:'Financeiro',gestao:'Gestão'};
+const TIPO_COLORS={lideranca:'#F5C518',operacao:'#666',comercial:'#2196F3',estrategia:'#9C27B0',financeiro:'#4CAF50',gestao:'#FF9800'};
+
+function svgRing(val,size,stroke,color){
+  const r=(size-stroke)/2,circ=2*Math.PI*r,offset=circ-(val/100)*circ;
+  return `<svg width="${size}" height="${size}" style="transform:rotate(-90deg)">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#2A2A2A" stroke-width="${stroke}"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}"
+      stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"/>
+  </svg>`;
+}
+function ringWidget(val,size,stroke,color,label){
+  return `<div class="ring-wrap" style="width:${size}px;height:${size}px">${svgRing(val,size,stroke,color)}<div class="ring-label" style="font-size:${Math.round(size*.18)}px;color:${color}">${label}</div></div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+let currentPage='dashboard';
+function navigate(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>{if(b.getAttribute('onclick')===`navigate('${page}')`)b.classList.add('active');});
+  currentPage=page;
+  renderPage(page);
+}
+function renderPage(page){
+  const fn={dashboard:renderDashboard,kpis:renderKPIs,projetos:renderProjetos,combinados:renderCombinados,acoes:renderAcoes,rotina:renderRotina,equipe:renderEquipe,financeiro:renderFinanceiro,associados:renderAssociados,modelagem:renderModelagem,silo:renderSilo,atas:renderAtas,riscos:renderRiscos,conselho:renderConselho,eventos:renderEventos,captacao:renderCaptacao,cockpit:renderCockpit};
+  if(fn[page])fn[page]();
+  updateSidebar();
+}
+
+// ═══════════════════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════════════════
+function updateSidebar(){
+  const cw=currentWeek();
+  const items=S.combinados.filter(c=>c.semana===cw);
+  const done=items.filter(c=>c.feito).length;
+  const p=items.length?Math.round(done/items.length*100):0;
+  const cor=p>=80?'#4CAF50':p>=50?'#F5C518':'#F44336';
+  document.getElementById('sidebar-ring').innerHTML=ringWidget(p,44,5,cor,`${p}%`);
+  document.getElementById('sidebar-pct').style.color=cor;
+  document.getElementById('sidebar-pct').textContent=p+'%';
+  const now=new Date();
+  document.getElementById('today-date').textContent=now.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short'}).toUpperCase();
+}
+
+// ═══════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════
+function renderDashboard(){
+  const cw=currentWeek();
+  const now=new Date();
+  document.getElementById('dash-sub').textContent=`Visão consolidada · Semana ${cw.replace('W','')} · ${now.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'})}`;
+
+  const items=S.combinados.filter(c=>c.semana===cw);
+  const wDone=items.filter(c=>c.feito).length;
+  const wPct=items.length?Math.round(wDone/items.length*100):0;
+  const wCor=wPct>=80?'#4CAF50':wPct>=50?'#F5C518':'#F44336';
+  const aOpen=S.acoes.filter(a=>!a.feito).length;
+  const aDone=S.acoes.filter(a=>a.feito).length;
+  const pAtivos=(S.projetos_agil||[]).filter(p=>p.status==='Em andamento').length;
+  const totalProjetos=(S.projetos_agil||[]).length;
+  const encPend=(S.atas||[]).flatMap(a=>a.pautas||[]).filter(p=>p.status==='Pendente'||p.status==='Em andamento').length;
+  const captadoR=(S.captacao_funil||[]).filter(c=>c.status==='Captado').reduce((a,c)=>a+c.valor,0);
+  const receita=1930885;const metaR=1582500;
+  const recPct=Math.round(receita/metaR*100);
+
+  const cards=[
+    {icon:'📋',val:wPct+'%',label:'Combinados da Semana',sub:`${wDone}/${items.length} entregues`,cor:wCor,click:"navigate('combinados')"},
+    {icon:'✅',val:aOpen,label:'Ações em Aberto',sub:`${aDone} concluídas`,cor:'#2196F3',click:"navigate('acoes')"},
+    {icon:'🚀',val:pAtivos,label:'Projetos Ativos',sub:`de ${totalProjetos} projetos`,cor:'#F5C518',click:"navigate('projetos')"},
+    {icon:'📝',val:encPend,label:'Encaminhamentos Abertos',sub:'Atas e reuniões',cor:encPend>5?'#F44336':'#FF9800',click:"navigate('atas')"},
+    {icon:'💰',val:recPct+'%',label:'Receita vs Meta',sub:'R$ 1,93M / R$ 1,58M',cor:'#4CAF50',click:"navigate('modelagem')"},
+    {icon:'💼',val:'R$'+(captadoR/1000).toFixed(0)+'k',label:'Captação Ext. Realizada',sub:'Meta R$250k',cor:captadoR>=250000?'#4CAF50':'#F44336',click:"navigate('captacao')"},
+    {icon:'🎪',val:(S.eventos||[]).filter(e=>e.status==='Realizado').length,label:'Eventos Realizados',sub:`Meta 60 em 2026`,cor:'#9C27B0',click:"navigate('eventos')"},
+    {icon:'🚦',val:(S.kpis||[]).filter(k=>pct(k.atual,k.meta)<40).length,label:'KPIs Críticos',sub:'Abaixo de 40%',cor:'#F44336',click:"navigate('riscos')"},
+  ];
+  document.getElementById('dash-cards').innerHTML=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px">
+    ${cards.map(c=>`
+    <div class="card" style="cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='${c.cor}66'" onmouseout="this.style.borderColor=''" onclick="${c.click}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <span style="font-size:20px">${c.icon}</span>
+        <span style="font-size:9px;color:var(--muted);font-family:monospace">→</span>
+      </div>
+      <div style="font-size:26px;font-weight:900;color:${c.cor};font-family:monospace;line-height:1">${c.val}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:5px">${c.label}</div>
+      <div style="font-size:11px;color:var(--dim);margin-top:2px">${c.sub}</div>
+    </div>`).join('')}
+  </div>`;
+
+  const pilares=[...new Set((S.kpis||[]).map(k=>k.pilar))];
+  document.getElementById('dash-kpis').innerHTML=pilares.map(p=>{
+    const its=S.kpis.filter(k=>k.pilar===p);
+    const media=Math.round(its.reduce((a,k)=>a+pct(k.atual,k.meta),0)/its.length);
+    const cor=PILAR_COLORS[p]||'#F5C518';
+    return`<div style="margin-bottom:10px;cursor:pointer" onclick="editKpiDash(${its[0].id})">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+        <span style="font-size:11px;color:${cor};font-family:monospace">${p.toUpperCase()}</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:10px;color:var(--muted)">${its.length} indicadores</span>
+          <span style="font-size:11px;font-family:monospace;color:${barColor(media)};font-weight:700">${media}%</span>
+        </div>
+      </div>
+      <div class="bar-track" style="height:5px"><div class="bar-fill" style="width:${media}%;background:${cor}"></div></div>
+    </div>`;
+  }).join('')+`<button onclick="navigate('kpis')" style="width:100%;background:none;border:1px dashed var(--border2);border-radius:6px;padding:7px;color:var(--muted);cursor:pointer;font-size:11px;margin-top:8px">✎ Editar KPIs</button>`;
+
+  document.getElementById('dash-combinados').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+      ${ringWidget(wPct,48,6,wCor,wPct+'%')}
+      <div style="flex:1"><div style="font-size:16px;font-weight:700;color:${wCor};font-family:monospace">${wDone}/${items.length} entregues</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">Semana ${cw}</div></div>
+    </div>
+    ${items.slice(0,4).map(c=>`
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;padding:6px 8px;background:#ffffff04;border-radius:6px">
+        <button onclick="dashToggleCombinado(${c.id})" style="width:18px;height:18px;border-radius:4px;border:2px solid ${c.feito?'#4CAF50':'var(--border2)'};background:${c.feito?'#4CAF50':'transparent'};cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;flex-shrink:0">${c.feito?'✓':''}</button>
+        <div style="flex:1;min-width:0"><div style="font-size:11px;color:${c.feito?'var(--muted)':'var(--text)'};text-decoration:${c.feito?'line-through':'none'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.descricao}</div></div>
+        <span style="font-size:10px;color:var(--muted);flex-shrink:0">${c.responsavel}</span>
+      </div>`).join('')}
+    ${items.length>4?`<div style="font-size:10px;color:var(--muted);text-align:center;margin-top:4px">+${items.length-4} combinados</div>`:''}
+    <button onclick="openModal('combinado')" style="width:100%;background:none;border:1px dashed var(--border2);border-radius:6px;padding:6px;color:var(--muted);cursor:pointer;font-size:11px;margin-top:8px">+ Novo Combinado</button>`;
+
+  const projs=(S.projetos_agil||[]);
+  document.getElementById('dash-projetos').innerHTML=projs.slice(0,5).map(p=>{
+    const sc={'Em andamento':'#2196F3','Planejamento':'#9C27B0','Monitoramento':'#F5C518','Concluído':'#4CAF50','Pausado':'#F44336'}[p.status]||'#666';
+    return`<div style="margin-bottom:10px;padding:8px 10px;background:#ffffff04;border-radius:7px;cursor:pointer" onclick="editProjetoAgil(${p.id})">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:12px;color:var(--text);font-weight:600;max-width:75%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.nome}</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="font-size:10px;font-family:monospace;color:${sc}">${p.progresso}%</span>
+          <span style="font-size:9px;color:var(--muted)">✎</span>
+        </div>
+      </div>
+      <div class="bar-track" style="height:4px"><div class="bar-fill" style="width:${p.progresso}%;background:${sc}"></div></div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px">${p.owner} · ${p.sprint_atual||p.status}</div>
+    </div>`;
+  }).join('')+`<button onclick="openModal('projeto_agil')" style="width:100%;background:none;border:1px dashed var(--border2);border-radius:6px;padding:6px;color:var(--muted);cursor:pointer;font-size:11px;margin-top:4px">+ Novo Projeto</button>`;
+
+  const abertas=S.acoes.filter(a=>!a.feito);
+  document.getElementById('dash-acoes').innerHTML=(abertas.length?abertas.slice(0,5).map(a=>{
+    const pc=PILAR_COLORS[a.pilar]||'#F5C518';
+    return`<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;padding:7px 10px;background:#ffffff04;border-radius:7px">
+      <button onclick="dashToggleAcao(${a.id})" style="width:18px;height:18px;border-radius:4px;border:2px solid var(--border2);background:transparent;cursor:pointer;flex-shrink:0"></button>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.titulo}</div>
+        <div style="font-size:10px;color:var(--muted)">${a.responsavel}${a.prazo?' · '+a.prazo:''}</div>
+      </div>
+      <span style="width:7px;height:7px;border-radius:50%;background:${pc};flex-shrink:0"></span>
+    </div>`;
+  }).join(''):'<div style="text-align:center;padding:20px 0;color:var(--muted)">🎉 Nenhuma ação em aberto!</div>')+
+  `<button onclick="openModal('acao')" style="width:100%;background:none;border:1px dashed var(--border2);border-radius:6px;padding:6px;color:var(--muted);cursor:pointer;font-size:11px;margin-top:8px">+ Nova Ação</button>`;
+
+  const riscosCrit=[
+    {label:'Captação Externa',atual:captadoR,meta:250000,ic:'💰'},
+    {label:'Negócios no Ecossistema',atual:(S.kpis||[]).find(k=>k.id===5)?.atual||0,meta:40,ic:'🤝'},
+    {label:'Eventos 2026',atual:(S.eventos||[]).filter(e=>e.status==='Realizado').length,meta:60,ic:'🎪'},
+    {label:'Talentos Formados',atual:(S.kpis||[]).find(k=>k.id===9)?.atual||21,meta:250,ic:'🎓'},
+  ];
+  document.getElementById('dash-riscos').innerHTML=riscosCrit.map(r=>{
+    const p2=Math.min(100,Math.round(r.atual/r.meta*100));
+    const rc=p2>=80?'#4CAF50':p2>=40?'#FF9800':'#F44336';
+    const sem=p2>=80?'🟢':p2>=40?'🟡':'🔴';
+    const fv=v=>v>=1000?'R$'+(v/1000).toFixed(0)+'k':String(v);
+    return`<div style="margin-bottom:9px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:11px;color:var(--dim)">${r.ic} ${r.label}</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="font-size:9px">${sem}</span>
+          <span style="font-size:11px;font-family:monospace;color:${rc};font-weight:700">${p2}%</span>
+          <span style="font-size:10px;color:var(--muted)">${fv(r.atual)}/${fv(r.meta)}</span>
+        </div>
+      </div>
+      <div class="bar-track" style="height:4px"><div class="bar-fill" style="width:${p2}%;background:${rc}"></div></div>
+    </div>`;
+  }).join('')+`<button onclick="navigate('riscos')" style="width:100%;background:none;border:1px dashed var(--border2);border-radius:6px;padding:6px;color:var(--muted);cursor:pointer;font-size:11px;margin-top:6px">Ver todos os riscos →</button>`;
+
+  const pipelineItems=(S.captacao_funil||[]).filter(c=>!['Captado','Reprovado'].includes(c.status));
+  const capTotal=pipelineItems.reduce((a,c)=>a+c.valor,0);
+  document.getElementById('dash-captacao-mini').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      ${ringWidget(Math.round(captadoR/250000*100),48,6,captadoR>=250000?'#4CAF50':'#F44336',Math.round(captadoR/250000*100)+'%')}
+      <div>
+        <div style="font-size:15px;font-weight:700;font-family:monospace;color:#F44336">R$${(captadoR/1000).toFixed(0)}k <span style="font-size:11px;color:var(--muted)">/ R$250k</span></div>
+        <div style="font-size:11px;color:var(--muted)">Pipeline: R$${(capTotal/1000).toFixed(0)}k em aberto</div>
+      </div>
+    </div>
+    ${pipelineItems.slice(0,3).map(c=>{
+      const sc=CAPTACAO_COR[c.status]||'#666';
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+        <div style="flex:1;min-width:0"><div style="font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.nome}</div>
+        <span style="font-size:10px;color:${sc}">${c.status}</span></div>
+        <span style="font-family:monospace;font-size:11px;color:#F5C518;font-weight:700;margin-left:8px;flex-shrink:0">R$${(c.valor/1000).toFixed(0)}k</span>
+      </div>`;
+    }).join('')}
+    <button onclick="openModal('captacao_item')" style="width:100%;background:none;border:1px dashed var(--border2);border-radius:6px;padding:6px;color:var(--muted);cursor:pointer;font-size:11px;margin-top:8px">+ Nova Oportunidade</button>`;
+
+  const proxEvts=(S.eventos||[]).filter(e=>e.status!=='Realizado'&&e.status!=='Cancelado').sort((a,b)=>a.data.localeCompare(b.data)).slice(0,6);
+  document.getElementById('dash-eventos').innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+    ${proxEvts.map(e=>{
+      const sc=STATUS_EV_COR[e.status]||'#666';
+      const dias=Math.ceil((new Date(e.data)-new Date())/(1000*60*60*24));
+      return`<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer" onclick="navigate('eventos')">
+        <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:1.3">${e.nome}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+          <span style="font-size:10px;font-family:monospace;color:var(--muted)">${e.data}</span>
+          <span class="pill" style="background:${sc}22;color:${sc};font-size:9px">${dias>0?dias+'d':dias===0?'Hoje':'Passado'}</span>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">${e.responsavel}</div>
+      </div>`;
+    }).join('')}
+  </div>
+  <button onclick="openModal('evento')" style="width:100%;background:none;border:1px dashed var(--border2);border-radius:6px;padding:6px;color:var(--muted);cursor:pointer;font-size:11px;margin-top:10px">+ Adicionar Evento</button>`;
+}
+
+function dashToggleCombinado(id){S.combinados=S.combinados.map(c=>c.id===id?{...c,feito:!c.feito}:c);save();renderDashboard();updateSidebar();}
+function dashToggleAcao(id){S.acoes=S.acoes.map(a=>a.id===id?{...a,feito:!a.feito}:a);save();renderDashboard();}
+function editKpiDash(id){navigate('kpis');setTimeout(()=>editKPI(id),100);}
+
+// ═══════════════════════════════════════════════════════
+// KPIs
+// ═══════════════════════════════════════════════════════
+function renderKPIs(){
+  const pilares=[...new Set(S.kpis.map(k=>k.pilar))];
+  document.getElementById('kpis-content').innerHTML=pilares.map(p=>{
+    const items=S.kpis.filter(k=>k.pilar===p);
+    const media=Math.round(items.reduce((a,k)=>a+pct(k.atual,k.meta),0)/items.length);
+    const cor=PILAR_COLORS[p]||'#F5C518';
+    return`<div style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:4px;height:22px;background:${cor};border-radius:2px"></div>
+        <span style="font-size:12px;font-family:monospace;letter-spacing:2px;color:${cor}">${p.toUpperCase()}</span>
+        <span class="pill" style="background:${cor}22;color:${cor}">Média ${media}%</span>
+      </div>
+      ${items.map(k=>{
+        const p2=pct(k.atual,k.meta);const bc=barColor(p2);
+        return`<div class="card" style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <span style="font-size:13px;color:var(--text)">${k.label}</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="font-family:monospace;font-size:13px;color:${bc};font-weight:700;cursor:pointer" onclick="editKPI(${k.id})" title="Clique para editar">${fmtVal(k.atual,k.un)} ✎</span>
+              <span style="font-size:12px;color:var(--muted);font-family:monospace">/ ${fmtVal(k.meta,k.un)}</span>
+              <span style="font-size:13px;font-family:monospace;font-weight:700;color:${bc};min-width:38px;text-align:right">${p2}%</span>
+            </div>
+          </div>
+          <div class="bar-track" style="height:6px"><div class="bar-fill" style="width:${p2}%;background:${bc}"></div></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+function editKPI(id){
+  const k=S.kpis.find(x=>x.id===id);
+  openModalWith('Atualizar KPI',`
+    <div class="form-group"><label class="form-label">INDICADOR</label><div style="font-size:13px;color:var(--dim);padding:8px 0">${k.label}</div></div>
+    <div class="form-group"><label class="form-label">VALOR ATUAL</label><input class="form-input" id="f-kpi-val" type="number" value="${k.atual}"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveKPI(${id})">Salvar</button>
+    </div>`);
+}
+function saveKPI(id){
+  const val=parseFloat(document.getElementById('f-kpi-val').value);
+  S.kpis=S.kpis.map(k=>k.id===id?{...k,atual:isNaN(val)?k.atual:val}:k);
+  save();closeModal();renderKPIs();updateSidebar();
+}
+
+// ═══════════════════════════════════════════════════════
+// PROJETOS (legacy kept for backward compat)
+// ═══════════════════════════════════════════════════════
+function renderProjetos_legacy(){
+  document.getElementById('projetos-content').innerHTML=S.projetos.length?S.projetos.map(p=>{
+    const sc=STATUS_COLORS[p.status]||'#F5C518';
+    const pc=p.prioridade==='Alta'?'#F44336':'#F5C518';
+    return`<div class="card" style="margin-bottom:14px;border-left:4px solid ${p.prioridade==='Alta'?'#F5C518':'var(--border)'}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px">
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;margin-bottom:6px">${p.nome}</div>
+          <div style="font-size:12px;color:var(--dim);margin-bottom:10px;line-height:1.5">${p.descricao}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <span class="pill" style="background:${sc}22;color:${sc}">${p.status}</span>
+            <span class="pill" style="background:${pc}22;color:${pc}">Prioridade ${p.prioridade}</span>
+            <span style="font-size:11px;color:var(--muted);font-family:monospace">${p.owner}</span>
+            ${p.prazo?`<span style="font-size:11px;color:var(--muted);font-family:monospace">📅 ${p.prazo}</span>`:''}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+          ${ringWidget(p.progresso,58,6,sc,p.progresso+'%')}
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost btn-sm" onclick="editProjeto(${p.id})">✎</button>
+            <button class="btn btn-danger btn-sm" onclick="delProjeto(${p.id})">✕</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join(''):'<div class="empty-state"><div class="empty-icon">🚀</div>Nenhum projeto cadastrado.</div>';
+}
+function editProjeto(id){
+  const p=id?S.projetos.find(x=>x.id===id):{nome:'',owner:'',status:'Planejamento',prioridade:'Alta',progresso:0,prazo:'',descricao:''};
+  openModalWith(id?'Editar Projeto':'Novo Projeto',`
+    <div class="form-group"><label class="form-label">NOME DO PROJETO</label><input class="form-input" id="f-pnome" value="${p.nome}"></div>
+    <div class="form-group"><label class="form-label">RESPONSÁVEL</label><input class="form-input" id="f-powner" value="${p.owner}"></div>
+    <div class="form-group"><label class="form-label">STATUS</label><select class="form-select" id="f-pstatus">${['Planejamento','Em andamento','Monitoramento','Concluído','Pausado'].map(s=>`<option${s===p.status?' selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label">PRIORIDADE</label><select class="form-select" id="f-pprio">${['Alta','Média','Baixa'].map(s=>`<option${s===p.prioridade?' selected':''}>${s}</option>`).join('')}</select></div>
+    <div class="form-group"><label class="form-label">PROGRESSO (%) — atual: ${p.progresso}%</label><input type="range" min="0" max="100" value="${p.progresso}" id="f-pprog" oninput="document.getElementById('f-pprog-val').textContent=this.value+'%'"><span id="f-pprog-val" style="font-family:monospace;color:var(--yellow)">${p.progresso}%</span></div>
+    <div class="form-group"><label class="form-label">PRAZO</label><input class="form-input" type="date" id="f-pprazo" value="${p.prazo}"></div>
+    <div class="form-group"><label class="form-label">DESCRIÇÃO</label><textarea class="form-textarea" id="f-pdesc">${p.descricao}</textarea></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveProjeto(${id||0})">${id?'Salvar':'Criar'}</button>
+    </div>`);
+}
+function saveProjeto(id){
+  const obj={nome:document.getElementById('f-pnome').value,owner:document.getElementById('f-powner').value,status:document.getElementById('f-pstatus').value,prioridade:document.getElementById('f-pprio').value,progresso:parseInt(document.getElementById('f-pprog').value)||0,prazo:document.getElementById('f-pprazo').value,descricao:document.getElementById('f-pdesc').value};
+  if(!obj.nome)return;
+  if(id)S.projetos=S.projetos.map(p=>p.id===id?{...obj,id}:p);
+  else S.projetos.push({...obj,id:Date.now()});
+  save();closeModal();renderProjetos();
+}
+function delProjeto(id){if(confirm('Excluir este projeto?')){S.projetos=S.projetos.filter(p=>p.id!==id);save();renderProjetos();}}
+
+// ═══════════════════════════════════════════════════════
+// COMBINADOS
+// ═══════════════════════════════════════════════════════
+let combinadosSemana=currentWeek();
+function renderCombinados(){
+  const semanas=[...new Set(S.combinados.map(c=>c.semana))].sort().reverse();
+  if(!semanas.includes(currentWeek()))semanas.unshift(currentWeek());
+  document.getElementById('week-tabs').innerHTML=semanas.map(s=>`
+    <button class="btn ${s===combinadosSemana?'btn-primary':'btn-ghost'} btn-sm" onclick="setSemana('${s}')">${s}${s===currentWeek()?' ← atual':''}</button>`).join('');
+  const items=S.combinados.filter(c=>c.semana===combinadosSemana);
+  const done=items.filter(c=>c.feito).length;
+  const total=items.length;
+  const ep=total?Math.round(done/total*100):0;
+  const ec=ep>=80?'#4CAF50':ep>=50?'#F5C518':ep>0?'#FF9800':'var(--muted)';
+  const msg=ep===100?'🎯 Semana 100% executada!':ep>=80?'🟢 Ótimo ritmo':ep>=50?'🟡 Atenção — metade executada':total===0?'Sem combinados registrados':'🔴 Execução abaixo do esperado';
+  document.getElementById('exec-meter').innerHTML=`
+    <div style="display:flex;align-items:center;gap:24px">
+      ${ringWidget(ep,90,10,ec,ep+'%')}
+      <div style="flex:1">
+        <div style="font-size:20px;font-weight:700;margin-bottom:4px">${msg}</div>
+        <div style="color:var(--muted);font-size:13px">${done} de ${total} combinados entregues · Semana ${combinadosSemana}</div>
+        <div class="bar-track" style="height:8px;margin-top:12px"><div class="bar-fill" style="width:${ep}%;background:${ec}"></div></div>
+      </div>
+    </div>`;
+  document.getElementById('combinados-content').innerHTML=items.length?items.map((c,i)=>`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:12px 16px;background:${c.feito?'#4CAF5010':'var(--card)'};border:1px solid ${c.feito?'#4CAF5044':'var(--border)'};border-radius:10px">
+      <div style="width:28px;height:28px;border-radius:50%;background:${c.feito?'#4CAF5022':'var(--border)'};border:2px solid ${c.feito?'#4CAF50':'var(--border2)'};display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);font-family:monospace;flex-shrink:0">${i+1}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;color:${c.feito?'var(--muted)':'var(--text)'};text-decoration:${c.feito?'line-through':'none'}">${c.descricao}</div>
+        ${c.responsavel?`<div style="font-size:11px;color:var(--muted);font-family:monospace;margin-top:2px">→ ${c.responsavel}</div>`:''}
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn ${c.feito?'':'btn-ghost'} btn-sm" style="${c.feito?'background:#4CAF5022;color:#4CAF50;border:1px solid #4CAF5033':''}" onclick="toggleCombinado(${c.id})">${c.feito?'✓ Feito':'Marcar feito'}</button>
+        <button onclick="delCombinado(${c.id})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">✕</button>
+      </div>
+    </div>`).join(''):'<div class="empty-state"><div class="empty-icon">📋</div>Nenhum combinado para esta semana.<br><small style="color:var(--muted)">Clique em "+ Novo Combinado" para registrar.</small></div>';
+}
+function setSemana(s){combinadosSemana=s;renderCombinados();}
+function toggleCombinado(id){S.combinados=S.combinados.map(c=>c.id===id?{...c,feito:!c.feito}:c);save();renderCombinados();updateSidebar();}
+function delCombinado(id){S.combinados=S.combinados.filter(c=>c.id!==id);save();renderCombinados();updateSidebar();}
+function saveCombinado(){
+  const d=document.getElementById('f-cdesc').value;if(!d)return;
+  S.combinados.push({id:Date.now(),semana:currentWeek(),descricao:d,responsavel:document.getElementById('f-cresp').value,feito:false});
+  save();closeModal();combinadosSemana=currentWeek();renderCombinados();updateSidebar();
+}
+
+// ═══════════════════════════════════════════════════════
+// AÇÕES
+// ═══════════════════════════════════════════════════════
+let acoesFiltro='Todas';
+function renderAcoes(){
+  document.getElementById('acoes-filtros').innerHTML=['Todas','Pendentes','Concluídas'].map(f=>`
+    <button class="btn ${f===acoesFiltro?'btn-primary':'btn-ghost'} btn-sm" onclick="setAcoesFiltro('${f}')">${f}</button>`).join('');
+  const done=S.acoes.filter(a=>a.feito).length;
+  const ep=S.acoes.length?Math.round(done/S.acoes.length*100):0;
+  const filtradas=acoesFiltro==='Pendentes'?S.acoes.filter(a=>!a.feito):acoesFiltro==='Concluídas'?S.acoes.filter(a=>a.feito):S.acoes;
+  document.getElementById('acoes-content').innerHTML=`
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+      ${ringWidget(ep,52,6,ep===100?'#4CAF50':'#F5C518',ep+'%')}
+      <div><div style="font-size:20px;font-weight:700;color:${ep===100?'#4CAF50':'#F5C518'};font-family:monospace">${done}/${S.acoes.length}</div><div style="font-size:11px;color:var(--muted)">Ações concluídas</div></div>
+    </div>
+    ${filtradas.length?filtradas.map(a=>{
+      const pc=PILAR_COLORS[a.pilar]||'#F5C518';
+      return`<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;opacity:${a.feito?.6:1}">
+        <button class="check-btn ${a.feito?'done':''}" onclick="toggleAcao(${a.id})">${a.feito?'✓':''}</button>
+        <div style="flex:1">
+          <div style="font-size:13px;text-decoration:${a.feito?'line-through':'none'}">${a.titulo}</div>
+          <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
+            <span class="pill" style="background:${pc}22;color:${pc}">${a.pilar}</span>
+            <span class="pill" style="background:${a.prioridade==='Alta'?'#F4433622':'#F5C51822'};color:${a.prioridade==='Alta'?'#F44336':'#F5C518'}">${a.prioridade}</span>
+            <span style="font-size:11px;color:var(--muted);font-family:monospace">${a.responsavel}</span>
+            ${a.prazo?`<span style="font-size:11px;color:var(--muted);font-family:monospace">📅 ${a.prazo}</span>`:''}
+          </div>
+        </div>
+        <button onclick="delAcao(${a.id})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">✕</button>
+      </div>`;
+    }).join(''):'<div class="empty-state"><div class="empty-icon">🎉</div>Nenhuma ação encontrada.</div>'}`;
+}
+function setAcoesFiltro(f){acoesFiltro=f;renderAcoes();}
+function toggleAcao(id){S.acoes=S.acoes.map(a=>a.id===id?{...a,feito:!a.feito}:a);save();renderAcoes();}
+function delAcao(id){S.acoes=S.acoes.filter(a=>a.id!==id);save();renderAcoes();}
+function saveAcao(){
+  const t=document.getElementById('f-atitulo').value;if(!t)return;
+  S.acoes.push({id:Date.now(),titulo:t,responsavel:document.getElementById('f-aresp').value,prazo:document.getElementById('f-aprazo').value,pilar:document.getElementById('f-apilar').value,prioridade:document.getElementById('f-aprio').value,feito:false});
+  save();closeModal();renderAcoes();
+}
+
+// ═══════════════════════════════════════════════════════
+// ROTINA
+// ═══════════════════════════════════════════════════════
+const ROTINA=[
+  {id:'m1',bloco:'Manhã',tempo:'07:30',acao:'Check das 3 prioridades do dia',owner:'Márcia',tipo:'lideranca',dica:'Pergunte: o que só eu posso fazer hoje?'},
+  {id:'m2',bloco:'Manhã',tempo:'08:00',acao:'Leitura do relatório de ocupação e locações',owner:'Iasmin',tipo:'operacao',dica:'Receba por escrito — não entre na operação.'},
+  {id:'m3',bloco:'Manhã',tempo:'08:30',acao:'Revisão do pipeline de novos associados',owner:'Fernando',tipo:'comercial',dica:'Quantos prospects na semana? Quantos convertidos?'},
+  {id:'m4',bloco:'Manhã',tempo:'09:00',acao:'Alinhamento diário com equipe (15 min)',owner:'Márcia',tipo:'lideranca',dica:'Bloqueios, prioridades, 1 entrega do dia por pessoa.'},
+  {id:'m5',bloco:'Manhã',tempo:'09:30',acao:'Bloco de foco estratégico — sem interrupções',owner:'Márcia',tipo:'estrategia',dica:'Reservado para decisões, leituras ou prospecção de alto nível.'},
+  {id:'t1',bloco:'Tarde',tempo:'13:00',acao:'Verificar andamento das entregas da manhã',owner:'Márcia',tipo:'lideranca',dica:'Somente se houver desbloqueio necessário. Confie na equipe.'},
+  {id:'t2',bloco:'Tarde',tempo:'14:00',acao:'Contato com 1 associado (ligação ou visita)',owner:'Fernando',tipo:'comercial',dica:'Relacionamento ativo = fidelização. Não espere o associado sumir.'},
+  {id:'t3',bloco:'Tarde',tempo:'15:00',acao:'Atualizar captação de recursos (editais)',owner:'Fabiane',tipo:'financeiro',dica:'Meta: R$250k. Status atual: R$0. Urgência real.'},
+  {id:'t4',bloco:'Tarde',tempo:'15:30',acao:'Reunião ou visita institucional externa',owner:'Márcia',tipo:'estrategia',dica:'Distrito, conselho, parceiros. Você representa o Instituto.'},
+  {id:'t5',bloco:'Tarde',tempo:'17:00',acao:'Feedback rápido para a equipe sobre o dia',owner:'Márcia',tipo:'lideranca',dica:'30 segundos por pessoa. Reconheça o que foi bem.'},
+  {id:'f1',bloco:'Fechamento',tempo:'17:30',acao:'Registrar combinados do dia no sistema',owner:'Márcia',tipo:'gestao',dica:'O que ficou combinado? Quem entregou? O que ficou em aberto?'},
+  {id:'f2',bloco:'Fechamento',tempo:'17:45',acao:'Definir as 3 prioridades de amanhã',owner:'Márcia',tipo:'estrategia',dica:'Amanhã começa hoje. Deixe o caminho preparado.'},
+  {id:'f3',bloco:'Fechamento',tempo:'18:00',acao:'Conferir indicadores do dia',owner:'Iasmin',tipo:'financeiro',dica:'Tendências são mais importantes que números isolados.'},
+];
+let dicaAberta=null;
+function renderRotina(){
+  const hoje=new Date().toDateString();
+  if(S.rotina_date!==hoje){S.rotina_feitos={};S.rotina_date=hoje;save();}
+  const total=ROTINA.length;const done=Object.values(S.rotina_feitos).filter(Boolean).length;
+  const ep=Math.round(done/total*100);const ec=ep===100?'#4CAF50':ep>=70?'#F5C518':'var(--muted)';
+  document.getElementById('rotina-progress').innerHTML=`
+    ${ringWidget(ep,72,8,ec,ep+'%')}
+    <div>
+      <div style="font-size:20px;font-weight:700">${done} de ${total} tarefas concluídas hoje</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">${ep===100?'🎯 Dia 100% executado!':ep>=70?'🟡 Boa execução — finalize o dia forte.':'📋 Dia em andamento. Mantenha o ritmo.'}</div>
+    </div>`;
+  const blocos=[...new Set(ROTINA.map(r=>r.bloco))];
+  const blocoIcons={Manhã:'🌅',Tarde:'☀️',Fechamento:'🌙'};
+  const blocoCors={Manhã:'#F5C518',Tarde:'#FF9800',Fechamento:'#9C27B0'};
+  document.getElementById('rotina-content').innerHTML=blocos.map(b=>{
+    const items=ROTINA.filter(r=>r.bloco===b);
+    const bdone=items.filter(r=>S.rotina_feitos[r.id]).length;
+    return`<div class="card" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+        <span style="font-size:20px">${blocoIcons[b]}</span>
+        <div style="flex:1"><div style="font-size:15px;font-weight:700">${b}</div><div style="font-size:11px;color:var(--muted)">${bdone}/${items.length} concluídas</div></div>
+        <div style="width:4px;height:32px;background:${blocoCors[b]};border-radius:2px"></div>
+      </div>
+      ${items.map(r=>{
+        const done=S.rotina_feitos[r.id];const tc=TIPO_COLORS[r.tipo]||'#666';
+        return`<div style="display:flex;gap:12px;margin-bottom:10px;opacity:${done?.55:1}">
+          <button class="check-btn ${done?'done':''}" onclick="toggleRotina('${r.id}')">${done?'✓':''}</button>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+              <span style="font-size:11px;font-family:monospace;color:var(--muted);min-width:40px">${r.tempo}</span>
+              <span style="font-size:13px;text-decoration:${done?'line-through':'none'}">${r.acao}</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="pill" style="background:${tc}22;color:${tc}">${TIPO_LABELS[r.tipo]}</span>
+              <span style="font-size:11px;color:var(--muted)">→ ${r.owner}</span>
+              <button onclick="toggleDica('${r.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px">💡</button>
+            </div>
+            ${dicaAberta===r.id?`<div style="margin-top:8px;background:#F5C51822;border:1px solid #F5C51866;border-radius:8px;padding:8px 12px;font-size:12px;color:#D4A800;line-height:1.5">${r.dica}</div>`:''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+function toggleRotina(id){S.rotina_feitos[id]=!S.rotina_feitos[id];save();renderRotina();}
+function toggleDica(id){dicaAberta=dicaAberta===id?null:id;renderRotina();}
+function resetRotina(){if(confirm('Reiniciar todas as tarefas do dia?')){S.rotina_feitos={};save();renderRotina();}}
+
+// ═══════════════════════════════════════════════════════
+// EQUIPE
+// ═══════════════════════════════════════════════════════
+function renderEquipe(){
+  const pessoas=['Iasmin','Fabiane','Fernando'];
+  document.getElementById('equipe-content').innerHTML=`
+    ${pessoas.map(p=>{
+      const tasks=S.tarefas.filter(t=>t.pessoa===p);
+      const done=tasks.filter(t=>t.feito).length;
+      const ps=PESSOA_STYLE[p]||{cor:'#666',bg:'#66666618',icon:'👤'};
+      const ep=tasks.length?Math.round(done/tasks.length*100):0;
+      return`<div class="card" style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+          <div style="width:46px;height:46px;border-radius:50%;background:${ps.bg};border:2px solid ${ps.cor};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${ps.icon}</div>
+          <div style="flex:1"><div style="font-weight:700;font-size:15px">${p}</div><div style="font-size:12px;color:var(--muted)">${tasks.filter(t=>t.prioridade==='Alta').length} alta prioridade · ${done}/${tasks.length} concluídas</div></div>
+          <div style="font-size:22px;font-weight:900;color:${done===tasks.length?'#4CAF50':ps.cor};font-family:monospace">${ep}%</div>
+        </div>
+        ${tasks.map(t=>`
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;opacity:${t.feito?.5:1};padding:8px 10px;background:${t.prazo==='URGENTE'?'#F4433610':'transparent'};border-radius:8px">
+            <button class="check-btn ${t.feito?'done':''}" onclick="toggleTarefa(${t.id})">${t.feito?'✓':''}</button>
+            <div style="flex:1">
+              <div style="font-size:13px;text-decoration:${t.feito?'line-through':'none'}">${t.tarefa}</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">${t.area}</div>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center">
+              ${t.prioridade==='Alta'?`<span class="pill" style="background:#F4433622;color:#F44336">Alta</span>`:''}
+              <span style="font-size:11px;font-family:monospace;color:${t.prazo==='URGENTE'?'#F44336':'var(--muted)'};font-weight:${t.prazo==='URGENTE'?700:400}">${t.prazo}</span>
+              <button onclick="delTarefa(${t.id})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px">✕</button>
+            </div>
+          </div>`).join('')}
+      </div>`;
+    }).join('')}
+    <div class="card" style="background:#1A1400;border-color:#F5C51833">
+      <div class="slabel" style="color:var(--yellow)">SEU PAPEL COMO LÍDER</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        ${[['✅ Você faz','Verifica o % de conclusão. Pergunta se há bloqueio. Reconhece o que foi entregue.'],['🚫 Você não faz','Executar pela equipe. Cobrar fora do horário. Mudar prioridade sem conversa.'],['⚡ Pergunta de ouro','"O que você precisa de mim para concluir isso hoje?"'],['🎯 Resultado esperado','Equipe autônoma que entrega sem precisar de você para cada detalhe.']].map(([t,d])=>`
+          <div style="background:#ffffff11;border-radius:8px;padding:12px 14px">
+            <div style="color:var(--yellow);font-size:12px;font-weight:700;margin-bottom:6px">${t}</div>
+            <div style="color:#ccc;font-size:12px;line-height:1.5">${d}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+function toggleTarefa(id){S.tarefas=S.tarefas.map(t=>t.id===id?{...t,feito:!t.feito}:t);save();renderEquipe();}
+function delTarefa(id){S.tarefas=S.tarefas.filter(t=>t.id!==id);save();renderEquipe();}
+function saveTarefa(){
+  const t=document.getElementById('f-ttarefa').value;if(!t)return;
+  S.tarefas.push({id:Date.now(),pessoa:document.getElementById('f-tpessoa').value,area:document.getElementById('f-tarea').value,tarefa:t,prazo:document.getElementById('f-tprazo').value,feito:false,prioridade:document.getElementById('f-tprio').value});
+  save();closeModal();renderEquipe();
+}
+
+// ═══════════════════════════════════════════════════════
+// FINANCEIRO
+// ═══════════════════════════════════════════════════════
+function renderFinanceiro(){
+  const fin=[
+    {icon:'💰',label:'Receita Anual 2025',atual:1930885,meta:1582500,un:'R$',cor:'#4CAF50',obs:'122% da meta — superávit de 15,92%'},
+    {icon:'🎯',label:'Captação Externa 2026',atual:0,meta:250000,un:'R$',cor:'#F44336',obs:'URGENTE — meta não iniciada'},
+    {icon:'📈',label:'Superávit',atual:15.92,meta:5,un:'%',cor:'#F5C518',obs:'Acima da meta de 5% — base sólida'},
+    {icon:'🏢',label:'Empresas Associadas',atual:35,meta:44,un:'',cor:'#2196F3',obs:'9 novas associações para a meta'},
+  ];
+  document.getElementById('fin-cards').innerHTML=fin.map(f=>{
+    const p=pct(f.atual,f.meta);
+    return`<div class="card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+        <div>
+          <div class="slabel">${f.label}</div>
+          <div style="font-size:26px;font-weight:900;color:${f.cor};font-family:monospace;line-height:1">${fmtVal(f.atual,f.un)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Meta: ${fmtVal(f.meta,f.un)}</div>
+        </div>
+        <span style="font-size:28px">${f.icon}</span>
+      </div>
+      <div class="bar-track" style="height:6px"><div class="bar-fill" style="width:${Math.min(100,p)}%;background:${f.cor}"></div></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px">${f.obs}</div>
+    </div>`;
+  }).join('');
+  const etapas=['Prospecção','Proposta Enviada','Negociação','Renovação em Risco','Fechado'];
+  document.getElementById('pipeline-content').innerHTML=S.pipeline.map(p=>{
+    const ec=ETAPA_COLORS[p.etapa]||'#666';
+    return`<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:140px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:3px">${p.empresa}</div>
+        <div style="font-size:11px;color:var(--muted)">Perfil: <strong>${p.valor}</strong> · ${p.contato}</div>
+      </div>
+      <span class="pill" style="background:${ec}22;color:${ec}">${p.etapa}</span>
+      <div style="font-size:11px;color:var(--muted);min-width:130px">▶ ${p.proxima}</div>
+      <div style="display:flex;gap:6px">
+        ${p.etapa!=='Fechado'?`<button class="btn btn-ghost btn-sm" onclick="avançarPipeline(${p.id})">Avançar →</button>`:''}
+        <button onclick="delPipeline(${p.id})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:15px">✕</button>
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty-state" style="padding:24px 0">Nenhum prospect cadastrado.</div>';
+  document.getElementById('captacao-fontes').innerHTML=['FINEP — inovação tecnológica','BNDES — smart cities e infraestrutura','FAPERS — pesquisa aplicada RS','Lei do Bem — incentivo P&D','SEBRAE — programas de apoio','Prefeitura de PF — FIPF'].map(f=>`<div style="background:#ffffff08;border-radius:8px;padding:8px 12px;font-size:12px;color:#ccc">⚡ ${f}</div>`).join('');
+}
+function avançarPipeline(id){
+  const etapas=['Prospecção','Proposta Enviada','Negociação','Fechado'];
+  S.pipeline=S.pipeline.map(p=>{if(p.id!==id)return p;const i=etapas.indexOf(p.etapa);return{...p,etapa:etapas[Math.min(i+1,etapas.length-1)]};});
+  save();renderFinanceiro();
+}
+function delPipeline(id){S.pipeline=S.pipeline.filter(p=>p.id!==id);save();renderFinanceiro();}
+function saveProspect(){
+  const e=document.getElementById('f-emp').value;if(!e)return;
+  S.pipeline.push({id:Date.now(),empresa:e,contato:document.getElementById('f-pcontato').value,etapa:'Prospecção',valor:document.getElementById('f-pvalor').value,proxima:document.getElementById('f-pprox').value});
+  save();closeModal();renderFinanceiro();
+}
+
+// ═══════════════════════════════════════════════════════
+// ASSOCIADOS
+// ═══════════════════════════════════════════════════════
+const PERFIS=[
+  {perfil:'Founders',cor:'#F5C518',qt:8,risco:'Baixo',nps:95,desc:'Decisores do conselho. Máximo poder de influência e permanência.',eng:['Ligação pessoal mensal da Márcia — check de valor percebido','Convite antecipado para eventos estratégicos e fóruns','Participação ativa em decisões do conselho deliberativo','Relatório trimestral de impacto enviado por e-mail','Reconhecimento público nas comunicações do Instituto'],fin:['Proposta de upgrade para novos projetos (Innovabillity, Distrito)','Patrocínio de programas específicos com naming rights','Co-investimento no fundo de startups local']},
+  {perfil:'Partners',cor:'#2196F3',qt:26,risco:'Médio',nps:90,desc:'Base de receita estável. Precisam sentir pertencimento e exclusividade.',eng:['Verificar uso dos benefícios (sala gratuita, auditório, palestras)','Convidar para Meetup de Inovação e Chima Hub mensalmente','Apresentar ROI: conexões geradas e negócios realizados','Placa metálica em dia e visível no auditório','Acesso prioritário a novos programas antes da divulgação geral'],fin:['Oferecer upgrade para Founders aos mais engajados','Proposta de pacotes de eventos e formações extras','Laboratório de Soluções — co-criação com corporações']},
+  {perfil:'Residentes',cor:'#9C27B0',qt:12,risco:'Alto',nps:88,desc:'Presença física diária. Comunidade viva do Hub.',eng:['Check-in semanal de satisfação com o espaço (Iasmin)','Integração em eventos da comunidade — networking ativo','Acesso às formações e trilhas do Moinho de Talentos','Apresentar startups e residentes uns aos outros','Escuta ativa sobre melhorias no espaço'],fin:['Proposta de upgrade para Partners ao completar 6 meses','Pacotes de salas adicionais com desconto progressivo','Convite para programas de corporações (POCs, laboratórios)']},
+  {perfil:'Coworking',cor:'#FF9800',qt:34,risco:'Muito Alto',nps:85,desc:'Porta de entrada. Oportunidade de conversão e upsell.',eng:['Boas-vindas personalizada no primeiro dia (onboarding)','Apresentar o ecossistema completo — não só o espaço físico','Convidar para eventos abertos: Meetups, Pitches, Hackathons','Contato mensal ativo: você está aproveitando os benefícios?','Coletar NPS a cada 30 dias — sinal de satisfação ou risco de saída'],fin:['Proposta de upgrade para Residente após 2 meses','Oferecer turno adicional com desconto progressivo','Conexão com programa de startups']},
+];
+const RISCO_COR={Baixo:'#4CAF50',Médio:'#FF9800',Alto:'#F44336','Muito Alto':'#F44336'};
+function renderAssociados(){
+  document.getElementById('perfil-tabs').innerHTML=PERFIS.map(p=>`
+    <button onclick="setPerfil('${p.perfil}')" style="background:${S.perfil_ativo===p.perfil?p.cor+'22':'var(--card)'};border:2px solid ${S.perfil_ativo===p.perfil?p.cor:'var(--border)'};border-radius:12px;padding:14px 16px;cursor:pointer;text-align:left;color:var(--text)">
+      <div style="font-size:10px;font-family:monospace;color:${p.cor};letter-spacing:1px;margin-bottom:4px">${p.perfil.toUpperCase()}</div>
+      <div style="font-size:26px;font-weight:900;color:${p.cor};font-family:monospace">${p.qt}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:4px">associados</div>
+      <div style="margin-top:8px"><span class="pill" style="background:${RISCO_COR[p.risco]}22;color:${RISCO_COR[p.risco]}">Churn ${p.risco}</span></div>
+    </button>`).join('');
+  const p=PERFIS.find(x=>x.perfil===S.perfil_ativo);if(!p)return;
+  const allAcoes=[...p.eng,...p.fin];
+  const doneCount=allAcoes.filter((_,i)=>S.assoc_feitos[`${p.perfil}-${i}`]).length;
+  const ep=Math.round(doneCount/allAcoes.length*100);
+  document.getElementById('associados-content').innerHTML=`
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="slabel" style="color:${p.cor}">AÇÕES DE ENGAJAMENTO — ${p.perfil.toUpperCase()}</div>
+        <p style="font-size:13px;color:var(--dim);margin-bottom:14px;line-height:1.6">${p.desc}</p>
+        ${p.eng.map((a,i)=>{const done=S.assoc_feitos[`${p.perfil}-${i}`];return`
+          <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;opacity:${done?.5:1}">
+            <button class="check-btn ${done?'done':''}" onclick="toggleAssoc('${p.perfil}',${i})">${done?'✓':''}</button>
+            <span style="font-size:13px;text-decoration:${done?'line-through':'none'};line-height:1.5">${a}</span>
+          </div>`;}).join('')}
+      </div>
+      <div class="card">
+        <div class="slabel" style="color:#4CAF50">AÇÕES FINANCEIRAS — UPSELL & RETENÇÃO</div>
+        ${p.fin.map((a,i)=>{const idx=p.eng.length+i;const done=S.assoc_feitos[`${p.perfil}-${idx}`];return`
+          <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;opacity:${done?.5:1}">
+            <button class="check-btn ${done?'done':''}" onclick="toggleAssoc('${p.perfil}',${idx})">${done?'✓':''}</button>
+            <span style="font-size:13px;text-decoration:${done?'line-through':'none'};line-height:1.5">💰 ${a}</span>
+          </div>`;}).join('')}
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="card">
+        <div class="slabel">EXECUÇÃO DAS AÇÕES</div>
+        <div style="display:flex;align-items:center;gap:14px">
+          ${ringWidget(ep,68,8,ep>=80?'#4CAF50':p.cor,ep+'%')}
+          <div><div style="font-size:16px;font-weight:700">${doneCount}/${allAcoes.length}</div><div style="font-size:12px;color:var(--muted)">ações executadas</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="slabel">NPS ALVO DO PERFIL</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="font-size:30px;font-weight:900;color:${p.cor};font-family:monospace">${p.nps}</div>
+          <div style="font-size:12px;color:var(--muted)">pontos<br>de NPS</div>
+        </div>
+        <div class="bar-track" style="height:6px"><div class="bar-fill" style="width:${p.nps}%;background:${p.cor}"></div></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:6px">NPS geral atual: 87%</div>
+      </div>
+      <div class="card" style="background:#1A1400;border-color:#F5C51833">
+        <div class="slabel" style="color:var(--yellow)">REGRA DE FIDELIZAÇÃO</div>
+        <p style="font-size:13px;color:#D4A800;line-height:1.6;margin-bottom:10px">Associado engajado <strong>não cancela</strong>. Associado que cancela é aquele que parou de perceber valor — e ninguém percebeu a tempo.</p>
+        <p style="font-size:12px;color:#AA8800;line-height:1.5;margin:0">📌 Fernando: 1 contato ativo/semana. Iasmin: monitora uso de benefícios. Márcia: reconhece publicamente.</p>
+      </div>
+    </div>`;
+}
+function setPerfil(p){S.perfil_ativo=p;save();renderAssociados();}
+function toggleAssoc(perfil,idx){S.assoc_feitos[`${perfil}-${idx}`]=!S.assoc_feitos[`${perfil}-${idx}`];save();renderAssociados();}
+
+// ═══════════════════════════════════════════════════════
+// MODALS (base)
+// ═══════════════════════════════════════════════════════
+function openModalBase(type){
+  const configs={
+    projeto:{title:'Novo Projeto',body:`
+      <div class="form-group"><label class="form-label">NOME DO PROJETO</label><input class="form-input" id="f-pnome" placeholder="Nome do projeto"></div>
+      <div class="form-group"><label class="form-label">RESPONSÁVEL</label><input class="form-input" id="f-powner" placeholder="Owner"></div>
+      <div class="form-group"><label class="form-label">STATUS</label><select class="form-select" id="f-pstatus">${['Planejamento','Em andamento','Monitoramento','Concluído','Pausado'].map(s=>`<option>${s}</option>`).join('')}</select></div>
+      <div class="form-group"><label class="form-label">PRIORIDADE</label><select class="form-select" id="f-pprio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div>
+      <div class="form-group"><label class="form-label">PROGRESSO (%) <span id="f-pprog-val">0%</span></label><input type="range" min="0" max="100" value="0" id="f-pprog" oninput="document.getElementById('f-pprog-val').textContent=this.value+'%'"></div>
+      <div class="form-group"><label class="form-label">PRAZO</label><input class="form-input" type="date" id="f-pprazo"></div>
+      <div class="form-group"><label class="form-label">DESCRIÇÃO</label><textarea class="form-textarea" id="f-pdesc" placeholder="Descreva o projeto"></textarea></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProjeto(0)">Criar Projeto</button></div>`},
+    combinado:{title:'Novo Combinado',body:`
+      <div class="form-group"><label class="form-label">DESCRIÇÃO DO COMBINADO</label><input class="form-input" id="f-cdesc" placeholder="O que foi combinado?"></div>
+      <div class="form-group"><label class="form-label">RESPONSÁVEL</label><input class="form-input" id="f-cresp" placeholder="Quem vai executar?"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveCombinado()">Adicionar</button></div>`},
+    acao:{title:'Nova Ação',body:`
+      <div class="form-group"><label class="form-label">TÍTULO DA AÇÃO</label><input class="form-input" id="f-atitulo" placeholder="O que precisa ser feito?"></div>
+      <div class="form-group"><label class="form-label">RESPONSÁVEL</label><input class="form-input" id="f-aresp" placeholder="Nome"></div>
+      <div class="form-group"><label class="form-label">PRAZO</label><input class="form-input" type="date" id="f-aprazo"></div>
+      <div class="form-group"><label class="form-label">PILAR</label><select class="form-select" id="f-apilar">${['Startups','Corporações','Capital','Cultura','Gestão'].map(s=>`<option>${s}</option>`).join('')}</select></div>
+      <div class="form-group"><label class="form-label">PRIORIDADE</label><select class="form-select" id="f-aprio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveAcao()">Adicionar</button></div>`},
+    tarefa:{title:'Nova Tarefa da Equipe',body:`
+      <div class="form-group"><label class="form-label">PESSOA</label><select class="form-select" id="f-tpessoa"><option>Iasmin</option><option>Fabiane</option><option>Fernando</option></select></div>
+      <div class="form-group"><label class="form-label">TAREFA</label><input class="form-input" id="f-ttarefa" placeholder="O que deve ser feito?"></div>
+      <div class="form-group"><label class="form-label">ÁREA</label><input class="form-input" id="f-tarea" placeholder="Ex: Operações, Comercial..."></div>
+      <div class="form-group"><label class="form-label">PRAZO</label><input class="form-input" id="f-tprazo" placeholder="Ex: Hoje, Sex, URGENTE"></div>
+      <div class="form-group"><label class="form-label">PRIORIDADE</label><select class="form-select" id="f-tprio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveTarefa()">Adicionar</button></div>`},
+    prospect:{title:'Novo Prospect',body:`
+      <div class="form-group"><label class="form-label">EMPRESA</label><input class="form-input" id="f-emp" placeholder="Nome da empresa"></div>
+      <div class="form-group"><label class="form-label">CONTATO RESPONSÁVEL</label><input class="form-input" id="f-pcontato" placeholder="Quem está fazendo o contato?"></div>
+      <div class="form-group"><label class="form-label">PERFIL ALVO</label><select class="form-select" id="f-pvalor"><option>Coworking</option><option>Residente</option><option>Partner</option><option>Founder</option></select></div>
+      <div class="form-group"><label class="form-label">PRÓXIMA AÇÃO</label><input class="form-input" id="f-pprox" placeholder="O que acontece em seguida?"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProspect()">Adicionar</button></div>`},
+  };
+  if(configs[type])openModalWith(configs[type].title,configs[type].body);
+}
+function openModalWith(title,body){
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-body').innerHTML=body;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+
+// ═══════════════════════════════════════════════════════
+// MODELAGEM FINANCEIRA — ALIANÇA
+// ═══════════════════════════════════════════════════════
+const FLUXO_MENSAL=[{m:'Jan/25',ent:78288.9,sai:-93815.73,liq:-15526.83,acu:123455.47},{m:'Fev/25',ent:88333.46,sai:-91049.42,liq:-2715.96,acu:112772.41},{m:'Mar/25',ent:40333.47,sai:-103092.82,liq:-62759.35,acu:49346.4},{m:'Abr/25',ent:49447.19,sai:-92857.16,liq:-43409.97,acu:4160.6},{m:'Mai/25',ent:111242.8,sai:-114604.11,liq:-3361.31,acu:291.58},{m:'Jun/25',ent:199577.8,sai:-136625.44,liq:62952.36,acu:58712.34},{m:'Jul/25',ent:176390.31,sai:-136687.28,liq:39703.03,acu:94606.97},{m:'Ago/25',ent:152757.15,sai:-142300.78,liq:10456.37,acu:101249.76},{m:'Set/25',ent:201300.13,sai:-120976.14,liq:80323.99,acu:181239.8},{m:'Out/25',ent:225700.13,sai:-176476.96,liq:49223.17,acu:229058.1},{m:'Nov/25',ent:0,sai:-31315.41,liq:-31315.41,acu:197163.04},{m:'Dez/25',ent:7353,sai:-39737.67,liq:-32384.67,acu:164237.32}];
+const ORC_CATEGORIES=[{cat:'Marketing & Comunicação',orc24:114280,real24:99067,orc25:147650,real25:120642,orc26:291000,icon:'📢'},{cat:'Despesas Administrativas',orc24:44708,real24:78922,orc25:139000,real25:82045,orc26:239433,icon:'🏛️'},{cat:'Pessoal & RH',orc24:454962,real24:454365,orc25:545000,real25:571779,orc26:742000,icon:'👥'},{cat:'Eventos',orc24:175000,real24:98081,orc25:180000,real25:68387,orc26:295000,icon:'🎪'},{cat:'Programas de Inovação',orc24:120000,real24:71310,orc25:240000,real25:226980,orc26:150000,icon:'💡'}];
+const PROJECAO_2026=[{m:'Jan/26',ent:69716,sai:-41979,liq:27737},{m:'Fev/26',ent:67602,sai:-31864,liq:35738},{m:'Mar/26',ent:26000,sai:-40676,liq:-14676},{m:'Abr/26',ent:44779,sai:-65016,liq:-20237},{m:'Mai/26',ent:63489,sai:-55748,liq:7742},{m:'Jun/26',ent:162647,sai:-84922,liq:77725},{m:'Jul/26',ent:77438,sai:-80602,liq:-3164},{m:'Ago/26',ent:126789,sai:-78020,liq:48769},{m:'Set/26',ent:76344,sai:-68475,liq:7869},{m:'Out/26',ent:124994,sai:-75363,liq:49631},{m:'Nov/26',ent:56944,sai:-93617,liq:-36673},{m:'Dez/26',ent:100699,sai:-111012,liq:-10313}];
+const FOUNDERS_PARTNERS=[{nome:'Founder Atitus',tipo:'Founder',valor:50000},{nome:'Founder Be8',tipo:'Founder',valor:50000},{nome:'Founder Coprel',tipo:'Founder',valor:50000},{nome:'Founder Cotrijal',tipo:'Founder',valor:50000},{nome:'Founder Farmácias São João',tipo:'Founder',valor:50000},{nome:'Founder Metasa',tipo:'Founder',valor:50000},{nome:'Founder Oniz',tipo:'Founder',valor:50000},{nome:'Partner Coleurb',tipo:'Partner',valor:50000},{nome:'Partner DeCarli',tipo:'Partner',valor:35000},{nome:'Partner Ezata',tipo:'Partner',valor:37500},{nome:'Partner JR Cimentos',tipo:'Partner',valor:12000},{nome:'Partner Grupo Vidalar',tipo:'Partner',valor:33330},{nome:'Partner SENAI',tipo:'Partner',valor:50000},{nome:'Partner Sicredi',tipo:'Partner',valor:50000},{nome:'Partner Tanto Consultoria',tipo:'Partner',valor:50000},{nome:'Partner TOTVS',tipo:'Partner',valor:50000},{nome:'Partner Una Construtora',tipo:'Partner',valor:40000}];
+
+function fmtK(v){const abs=Math.abs(v);if(abs>=1000000)return`R$${(v/1000000).toFixed(2)}M`;if(abs>=1000)return`R$${(v/1000).toFixed(0)}k`;return`R$${v}`;}
+function barW(v,max){return Math.min(100,Math.round(Math.abs(v)/max*100));}
+
+function renderModelagem(){
+  const totalEnt=FLUXO_MENSAL.reduce((a,m)=>a+m.ent,0);const totalSai=FLUXO_MENSAL.reduce((a,m)=>a+m.sai,0);const liquido=totalEnt+totalSai;const superavit=(liquido/totalEnt*100).toFixed(2);const maxFluxo=Math.max(...FLUXO_MENSAL.map(m=>Math.max(m.ent,Math.abs(m.sai))));const totalCR=FOUNDERS_PARTNERS.reduce((a,p)=>a+p.valor,0);
+  document.getElementById('modelagem-content').innerHTML=`
+  <div class="grid4" style="margin-bottom:18px">${[{icon:'📥',label:'Entradas 2025',val:fmtK(totalEnt),cor:'#4CAF50',sub:'Receita total realizada'},{icon:'📤',label:'Saídas 2025',val:fmtK(Math.abs(totalSai)),cor:'#F44336',sub:'Despesas total realizadas'},{icon:'📊',label:'Líquido 2025',val:fmtK(liquido),cor:liquido>=0?'#4CAF50':'#F44336',sub:`Superávit de ${superavit}%`},{icon:'🏦',label:'Caixa Acumulado',val:fmtK(164237),cor:'#F5C518',sub:'Posição dez/25'}].map(c=>`<div class="card"><div style="font-size:22px;margin-bottom:8px">${c.icon}</div><div style="font-size:22px;font-weight:900;color:${c.cor};font-family:monospace;line-height:1">${c.val}</div><div style="font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:1px">${c.label}</div><div style="font-size:11px;color:var(--dim);margin-top:3px">${c.sub}</div></div>`).join('')}</div>
+  <div class="card" style="margin-bottom:14px"><div class="slabel">FLUXO DE CAIXA MENSAL 2025 — REALIZADO</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:700px"><thead><tr style="border-bottom:1px solid var(--border2)"><th style="text-align:left;padding:6px 8px;color:var(--muted);font-family:monospace;font-weight:400;font-size:10px">MÊS</th><th style="text-align:right;color:#4CAF50;font-family:monospace;font-weight:400;font-size:10px;padding:6px 8px">ENTRADAS</th><th style="text-align:right;color:#F44336;font-family:monospace;font-weight:400;font-size:10px;padding:6px 8px">SAÍDAS</th><th style="text-align:right;color:var(--text);font-family:monospace;font-weight:400;font-size:10px;padding:6px 8px">LÍQUIDO</th><th style="text-align:right;color:#F5C518;font-family:monospace;font-weight:400;font-size:10px;padding:6px 8px">ACUMULADO</th><th style="width:120px;padding:6px 8px;color:var(--muted);font-size:10px">BALANÇO</th></tr></thead><tbody>${FLUXO_MENSAL.map(m=>{const lc=m.liq>=0?'#4CAF50':'#F44336';const bw=barW(m.liq,maxFluxo);return`<tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 8px;font-family:monospace;font-size:11px;color:var(--dim)">${m.m}</td><td style="text-align:right;padding:7px 8px;color:#4CAF50;font-family:monospace">${fmtK(m.ent)}</td><td style="text-align:right;padding:7px 8px;color:#F44336;font-family:monospace">${fmtK(Math.abs(m.sai))}</td><td style="text-align:right;padding:7px 8px;color:${lc};font-family:monospace;font-weight:700">${fmtK(m.liq)}</td><td style="text-align:right;padding:7px 8px;color:#F5C518;font-family:monospace">${fmtK(m.acu)}</td><td style="padding:7px 8px"><div style="background:var(--border);border-radius:3px;height:6px;overflow:hidden"><div style="width:${bw}%;height:100%;background:${lc};border-radius:3px"></div></div></td></tr>`;}).join('')}<tr style="border-top:2px solid var(--border2);font-weight:700"><td style="padding:8px;font-family:monospace;font-size:11px;color:var(--yellow)">TOTAL 2025</td><td style="text-align:right;padding:8px;color:#4CAF50;font-family:monospace;font-weight:900">${fmtK(totalEnt)}</td><td style="text-align:right;padding:8px;color:#F44336;font-family:monospace;font-weight:900">${fmtK(Math.abs(totalSai))}</td><td style="text-align:right;padding:8px;color:${liquido>=0?'#4CAF50':'#F44336'};font-family:monospace;font-weight:900">${fmtK(liquido)}</td><td style="text-align:right;padding:8px;color:#F5C518;font-family:monospace;font-weight:900">${fmtK(164237)}</td><td></td></tr></tbody></table></div></div>
+  <div class="grid2" style="margin-bottom:14px"><div class="card"><div class="slabel">PROJEÇÃO MENSAL 2026</div>${PROJECAO_2026.map(m=>{const lc=m.liq>=0?'#4CAF50':'#F44336';return`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;font-family:monospace;color:var(--muted)">${m.m}</span><div style="display:flex;gap:10px"><span style="font-size:11px;font-family:monospace;color:#4CAF50">${fmtK(m.ent)}</span><span style="font-size:11px;font-family:monospace;color:#F44336">${fmtK(Math.abs(m.sai))}</span><span style="font-size:11px;font-family:monospace;color:${lc};font-weight:700;min-width:55px;text-align:right">${fmtK(m.liq)}</span></div></div><div style="display:flex;gap:2px;height:4px"><div style="background:#4CAF5055;border-radius:2px;flex:${m.ent}"></div><div style="background:#F4433655;border-radius:2px;flex:${Math.abs(m.sai)}"></div></div></div>`;}).join('')}</div><div class="card"><div class="slabel">CONTAS A RECEBER — FOUNDERS & PARTNERS</div><div style="margin-bottom:12px;padding:10px;background:#F5C51812;border:1px solid #F5C51833;border-radius:8px"><div style="font-size:11px;color:var(--muted);margin-bottom:2px">TOTAL ANUAL PREVISTO</div><div style="font-size:22px;font-weight:900;color:var(--yellow);font-family:monospace">${fmtK(totalCR)}</div></div><div style="max-height:340px;overflow-y:auto">${FOUNDERS_PARTNERS.map(p=>{const tc=p.tipo==='Founder'?'#F5C518':'#2196F3';return`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)"><span class="pill" style="background:${tc}22;color:${tc};font-size:10px;padding:1px 8px">${p.tipo}</span><span style="flex:1;font-size:12px;color:var(--text)">${p.nome.replace('Founder ','').replace('Partner ','')}</span><span style="font-family:monospace;font-size:12px;color:${tc};font-weight:700">${fmtK(p.valor)}</span></div>`;}).join('')}</div></div></div>
+  <div class="card" style="background:#1A0A00;border-color:#F4433633"><div class="slabel" style="color:#F44336">⚠️ ATENÇÃO — GAP FINANCEIRO 2026</div><div class="grid3"><div><div style="font-size:10px;color:var(--muted);margin-bottom:4px">DESPESAS ORÇADAS 2026</div><div style="font-size:20px;font-weight:900;color:#F44336;font-family:monospace">${fmtK(1717433)}</div></div><div><div style="font-size:10px;color:var(--muted);margin-bottom:4px">RECEITA PREVISTA 2026</div><div style="font-size:20px;font-weight:900;color:#4CAF50;font-family:monospace">${fmtK(1550950)}</div></div><div><div style="font-size:10px;color:var(--muted);margin-bottom:4px">GAP A COBRIR</div><div style="font-size:20px;font-weight:900;color:#F5C518;font-family:monospace">${fmtK(1717433-1550950)}</div></div></div><div style="margin-top:12px;font-size:12px;color:#FF8A80;line-height:1.6">📌 Captação externa (meta R$250k) + crescimento de associados (meta 44) são críticos para fechar o gap.</div></div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// SILO
+// ═══════════════════════════════════════════════════════
+const DESPESAS_COMPARTILHADAS=[{item:'Assessoria de Comunicação — Alpina',total:150000,al:105000,si:45000,split:'70/30'},{item:'Site e Marca — Alpina',total:35000,al:24500,si:10500,split:'70/30'},{item:'Assessoria de Imprensa — Propósito',total:50000,al:35000,si:15000,split:'70/30'},{item:'NPS — Tua Opinião',total:9000,al:6300,si:2700,split:'70/30'},{item:'Produção de Audiovisual',total:5000,al:3500,si:1500,split:'70/30'},{item:'Salários/Pessoal (Moinho Core)',total:650000,al:455000,si:195000,split:'70/30'},{item:'Copa/Cozinha',total:15000,al:10500,si:4500,split:'70/30'},{item:'Happy Hour Imprensa',total:10000,al:5000,si:5000,split:'50/50'},{item:'Copa (Silo paga 50% comida)',total:30000,al:15000,si:15000,split:'50/50'},{item:'Anúncios Patrocinados',total:10000,al:5000,si:5000,split:'50/50'},{item:'NPS extra Silo',total:5000,al:0,si:2000,split:'Silo'},{item:'Material de limpeza Silo',total:17000,al:0,si:17000,split:'Silo'},{item:'BPO Financeiro',total:13000,al:13000,si:0,split:'Aliança'}];
+function renderSilo(){
+  const totalComp=DESPESAS_COMPARTILHADAS.reduce((a,d)=>a+d.total,0);const siloTotal=665584;
+  document.getElementById('silo-content').innerHTML=`
+  <div class="grid3" style="margin-bottom:18px">${[{icon:'🏢',label:'Orçado Silo 2026',val:fmtK(siloTotal),cor:'#2196F3',sub:'Total despesas Silo'},{icon:'📈',label:'Orçado Aliança 2026',val:fmtK(1717433),cor:'#F5C518',sub:'Total despesas Aliança'},{icon:'🤝',label:'Despesas Compartilhadas',val:fmtK(totalComp),cor:'#9C27B0',sub:'Entre as duas entidades'}].map(c=>`<div class="card"><div style="font-size:22px;margin-bottom:8px">${c.icon}</div><div style="font-size:22px;font-weight:900;color:${c.cor};font-family:monospace;line-height:1">${c.val}</div><div style="font-size:10px;color:var(--muted);margin-top:4px;letter-spacing:1px">${c.label}</div><div style="font-size:11px;color:var(--dim);margin-top:3px">${c.sub}</div></div>`).join('')}</div>
+  <div class="card" style="margin-bottom:14px"><div class="slabel">RATEIO DE DESPESAS COMPARTILHADAS — ALIANÇA & SILO</div><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr style="border-bottom:1px solid var(--border2)"><th style="text-align:left;padding:7px 8px;color:var(--muted);font-family:monospace;font-weight:400;font-size:10px">ITEM</th><th style="text-align:right;color:var(--muted);font-family:monospace;font-weight:400;font-size:10px;padding:7px 8px">TOTAL</th><th style="text-align:right;color:#F5C518;font-family:monospace;font-weight:400;font-size:10px;padding:7px 8px">ALIANÇA</th><th style="text-align:right;color:#2196F3;font-family:monospace;font-weight:400;font-size:10px;padding:7px 8px">SILO</th><th style="text-align:center;color:var(--muted);font-family:monospace;font-weight:400;font-size:10px;padding:7px 8px">SPLIT</th><th style="width:150px;padding:7px 8px"></th></tr></thead><tbody>${DESPESAS_COMPARTILHADAS.map(d=>{const pAl=d.total?Math.round(d.al/d.total*100):0;const pSi=d.total?Math.round(d.si/d.total*100):0;return`<tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 8px;color:var(--text)">${d.item}</td><td style="text-align:right;padding:7px 8px;font-family:monospace;font-size:11px;color:var(--dim)">${fmtK(d.total)}</td><td style="text-align:right;padding:7px 8px;font-family:monospace;font-size:11px;color:#F5C518;font-weight:700">${fmtK(d.al)}</td><td style="text-align:right;padding:7px 8px;font-family:monospace;font-size:11px;color:#2196F3;font-weight:700">${fmtK(d.si)}</td><td style="text-align:center;padding:7px 8px"><span class="pill" style="background:#9C27B022;color:#9C27B0;font-size:10px">${d.split}</span></td><td style="padding:7px 8px"><div style="display:flex;height:6px;border-radius:3px;overflow:hidden;gap:1px"><div style="background:#F5C518;border-radius:2px;flex:${pAl}"></div><div style="background:#2196F3;border-radius:2px;flex:${pSi}"></div></div></td></tr>`;}).join('')}<tr style="border-top:2px solid var(--border2)"><td style="padding:8px;color:var(--yellow);font-family:monospace;font-size:11px;font-weight:700">TOTAL</td><td style="text-align:right;padding:8px;font-family:monospace;font-weight:900;color:var(--text)">${fmtK(totalComp)}</td><td style="text-align:right;padding:8px;font-family:monospace;font-weight:900;color:#F5C518">${fmtK(DESPESAS_COMPARTILHADAS.reduce((a,d)=>a+d.al,0))}</td><td style="text-align:right;padding:8px;font-family:monospace;font-weight:900;color:#2196F3">${fmtK(DESPESAS_COMPARTILHADAS.reduce((a,d)=>a+d.si,0))}</td><td colspan="2"></td></tr></tbody></table></div></div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// ATAS DE REUNIÃO
+// ═══════════════════════════════════════════════════════
+const TIPOS_REUNIAO=['Reunião ADM','Reunião Estratégica','Reunião de Diretoria','Reunião de Conselho','1:1','Reunião com Parceiro','Reunião Comercial','Outro'];
+const STATUS_OPT=['Pendente','Em andamento','Concluído','Cancelado'];
+const STATUS_COR={'Pendente':'#FF9800','Em andamento':'#2196F3','Concluído':'#4CAF50','Cancelado':'#F44336'};
+
+if(!S.atas)S.atas=[{id:1,titulo:'Reunião ADM Aliança Empresarial Norte/RS',tipo:'Reunião ADM',data:'2025-11-10',horario:'9h às 10h',formato:'Presencial',local:'Hub Aliança',facilitador:'Márcia Capellari',participantes:'Fabiane, Fernando, Iasmin, Márcia e Yuri',outros:'',arquivada:false,criadoEm:'2025-11-10',pautas:[{id:1,assunto:'Status organização e estratégia de acolhimento curso formação investidores.',encaminhamento:'Mesas em grupos · Decoração: flores + cheirinho · Sugestão de convidados: Propósito, Lindemar, Sicredi · Márcia verificar com Bossa N',prazo:'',responsavel:'Márcia',status:'Pendente'},{id:2,assunto:'Projetos estratégicos – Fernando.',encaminhamento:'Aliança em Rede para 2026 · Fernando organizar quadro com o que foi feito',prazo:'',responsavel:'Fernando',status:'Em andamento'},{id:3,assunto:'Lista de solicitação para entrada de associados.',encaminhamento:'Fernando concluir e apresentar',prazo:'',responsavel:'Fernando',status:'Pendente'},{id:4,assunto:'Definição de proposta de comercialização (Festa de 2 anos do Hub).',encaminhamento:'',prazo:'',responsavel:'',status:'Pendente'},{id:5,assunto:'Locação auditório para evento de apresentação da coleção de roupas de inverno.',encaminhamento:'',prazo:'',responsavel:'Iasmin',status:'Pendente'},{id:6,assunto:'Materialidade Google Forms para envio ao ecossistema.',encaminhamento:'',prazo:'',responsavel:'',status:'Pendente'},{id:7,assunto:'Atividades pendentes.',encaminhamento:'',prazo:'',responsavel:'',status:'Pendente'}]}];
+save();
+
+let atasFiltro='Todas',ataAberta=null;
+function renderAtas(){
+  const tipos=['Todas',...new Set(S.atas.map(a=>a.tipo))];
+  document.getElementById('atas-filtros').innerHTML=tipos.map(t=>`<button class="btn ${t===atasFiltro?'btn-primary':'btn-ghost'} btn-sm" onclick="setAtasFiltro('${t}')">${t}</button>`).join('')+`<button class="btn btn-ghost btn-sm" onclick="setAtasFiltro('Arquivadas')">🗂️ Arquivadas</button>`;
+  const lista=atasFiltro==='Todas'?S.atas.filter(a=>!a.arquivada):atasFiltro==='Arquivadas'?S.atas.filter(a=>a.arquivada):S.atas.filter(a=>a.tipo===atasFiltro&&!a.arquivada);
+  const allP=S.atas.flatMap(a=>a.pautas||[]);const conc=allP.filter(p=>p.status==='Concluído').length;const pend=allP.filter(p=>p.status==='Pendente'||p.status==='Em andamento').length;const ep=allP.length?Math.round(conc/allP.length*100):0;const epC=ep>=80?'#4CAF50':ep>=50?'#F5C518':'#FF9800';
+  document.getElementById('atas-stats').innerHTML=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">${[{icon:'📋',val:S.atas.filter(a=>!a.arquivada).length,label:'Reuniões Ativas',cor:'#F5C518'},{icon:'⚡',val:pend,label:'Encaminhamentos Abertos',cor:'#FF9800'},{icon:'✅',val:conc,label:'Enc. Concluídos',cor:'#4CAF50'},{icon:'📊',val:ep+'%',label:'Taxa de Execução',cor:epC}].map(c=>`<div class="card" style="padding:14px 16px"><div style="font-size:18px;margin-bottom:5px">${c.icon}</div><div style="font-size:22px;font-weight:900;color:${c.cor};font-family:monospace;line-height:1">${c.val}</div><div style="font-size:11px;color:var(--muted);margin-top:3px">${c.label}</div></div>`).join('')}</div>`;
+  if(!lista.length){document.getElementById('atas-content').innerHTML='<div class="empty-state"><div class="empty-icon">📝</div>Nenhuma ata encontrada.</div>';return;}
+  document.getElementById('atas-content').innerHTML=lista.sort((a,b)=>b.data.localeCompare(a.data)).map(a=>{
+    const pautas=a.pautas||[];const conc2=pautas.filter(p=>p.status==='Concluído').length;const ep2=pautas.length?Math.round(conc2/pautas.length*100):0;const epC2=ep2===100?'#4CAF50':ep2>=50?'#F5C518':'#FF9800';const aberta=ataAberta===a.id;
+    return`<div style="background:var(--card);border:1px solid ${aberta?'#F5C51866':'var(--border)'};border-radius:12px;margin-bottom:14px;overflow:hidden">
+      <div style="padding:16px 22px;cursor:pointer;display:flex;align-items:flex-start;gap:14px" onclick="toggleAta(${a.id})">
+        <div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700;margin-bottom:5px">${a.titulo}</div><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span class="pill" style="background:#9C27B022;color:#9C27B0">${a.tipo}</span><span style="font-size:11px;color:var(--muted);font-family:monospace">📅 ${a.data}</span><span style="font-size:11px;color:var(--muted)">👥 ${a.participantes}</span></div></div>
+        <div style="text-align:right"><div style="font-size:20px;font-weight:900;color:${epC2};font-family:monospace">${ep2}%</div><div style="font-size:10px;color:var(--muted)">${conc2}/${pautas.length}</div><div style="display:flex;gap:5px;margin-top:6px"><button onclick="event.stopPropagation();arquivarAta(${a.id})" class="btn btn-ghost btn-sm">🗂️</button><button onclick="event.stopPropagation();delAta(${a.id})" class="btn btn-danger btn-sm">✕</button></div></div>
+      </div>
+      ${aberta?`<div style="border-top:1px solid var(--border);padding:18px 22px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div class="slabel" style="margin-bottom:0">PAUTAS E ENCAMINHAMENTOS</div><button class="btn btn-ghost btn-sm" onclick="addPauta(${a.id})">+ Pauta</button></div>
+      ${pautas.map((p,i)=>{const sc=STATUS_COR[p.status]||'#666';return`<div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="flex:1"><div style="font-size:12px;color:var(--text);margin-bottom:4px"><strong>${p.id}.</strong> ${p.assunto}</div>${p.encaminhamento?`<div style="font-size:11px;color:var(--dim);margin-top:4px">→ ${p.encaminhamento}</div>`:''}<div style="display:flex;gap:8px;margin-top:6px;align-items:center">${p.responsavel?`<span style="font-size:10px;color:var(--muted)">👤 ${p.responsavel}</span>`:''}</div></div><select onchange="setPautaField(${a.id},${p.id},'status',this.value)" style="background:${sc}22;color:${sc};border:1px solid ${sc}44;border-radius:6px;padding:4px 8px;font-size:11px;font-family:monospace;cursor:pointer;outline:none">${STATUS_OPT.map(s=>`<option value="${s}"${s===p.status?' selected':''}>${s}</option>`).join('')}</select><button onclick="delPauta(${a.id},${p.id})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px">✕</button></div></div>`;}).join('')}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function toggleAta(id){ataAberta=ataAberta===id?null:id;renderAtas();}
+function setAtasFiltro(f){atasFiltro=f;renderAtas();}
+function setPautaField(ataId,pautaId,field,value){S.atas=S.atas.map(a=>{if(a.id!==ataId)return a;return{...a,pautas:a.pautas.map(p=>p.id===pautaId?{...p,[field]:value}:p)};});save();}
+function setAtaField(ataId,field,value){S.atas=S.atas.map(a=>a.id===ataId?{...a,[field]:value}:a);save();}
+function addPauta(ataId){S.atas=S.atas.map(a=>{if(a.id!==ataId)return a;const nextId=Math.max(0,...(a.pautas||[]).map(p=>p.id))+1;return{...a,pautas:[...(a.pautas||[]),{id:nextId,assunto:'',encaminhamento:'',prazo:'',responsavel:'',status:'Pendente'}]};});save();renderAtas();}
+function delPauta(ataId,pautaId){S.atas=S.atas.map(a=>a.id===ataId?{...a,pautas:a.pautas.filter(p=>p.id!==pautaId)}:a);save();renderAtas();}
+function arquivarAta(id){S.atas=S.atas.map(a=>a.id===id?{...a,arquivada:!a.arquivada}:a);save();renderAtas();}
+function delAta(id){if(confirm('Excluir esta ata?')){S.atas=S.atas.filter(a=>a.id!==id);save();renderAtas();}}
+function openAtaModal(a=null){const isEdit=!!a;openModalWith(isEdit?'Editar Ata':'Nova Ata',`
+  <div class="form-group"><label class="form-label">TÍTULO</label><input class="form-input" id="f-atit" value="${isEdit?a.titulo.replace(/"/g,'&quot;'):''}"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label class="form-label">TIPO</label><select class="form-select" id="f-atipo">${TIPOS_REUNIAO.map(t=>`<option${isEdit&&a.tipo===t?' selected':''}>${t}</option>`).join('')}</select></div><div class="form-group"><label class="form-label">DATA</label><input class="form-input" type="date" id="f-adata" value="${isEdit?a.data:''}"></div></div>
+  <div class="form-group"><label class="form-label">PARTICIPANTES</label><input class="form-input" id="f-apart" value="${isEdit?a.participantes.replace(/"/g,'&quot;'):''}"></div>
+  <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveAta(${isEdit?a.id:0})">${isEdit?'Salvar':'Criar Ata'}</button></div>`);}
+function saveAta(id){const titulo=document.getElementById('f-atit').value;if(!titulo)return;const obj={titulo,tipo:document.getElementById('f-atipo').value,data:document.getElementById('f-adata').value||new Date().toISOString().split('T')[0],horario:'',formato:'Presencial',local:'Hub Aliança',facilitador:'Márcia Capellari',participantes:document.getElementById('f-apart').value,outros:'',proxima:'',arquivada:false,criadoEm:new Date().toISOString().split('T')[0]};if(id){S.atas=S.atas.map(a=>a.id===id?{...obj,id,pautas:a.pautas||[],outros:a.outros||''}:a);}else{S.atas.push({...obj,id:Date.now(),pautas:[{id:1,assunto:'',encaminhamento:'',prazo:'',responsavel:'',status:'Pendente'}]});}save();closeModal();ataAberta=id||Date.now();renderAtas();}
+
+// ═══════════════════════════════════════════════════════
+// PROJETOS ÁGIL (KANBAN)
+// ═══════════════════════════════════════════════════════
+const KANBAN_COLS=['Backlog','Em Sprint','Em Revisão','Concluído'];
+const KANBAN_COR={'Backlog':'#666','Em Sprint':'#2196F3','Em Revisão':'#FF9800','Concluído':'#4CAF50'};
+if(!S.projetos_agil)S.projetos_agil=[
+  {id:1,nome:'Distrito de Inovação',owner:'Márcia',status:'Em andamento',prioridade:'Alta',progresso:40,prazo:'2026-12-31',descricao:'Reconversão territorial com foco em inovação.',sprint_atual:'Sprint 3',sprints:[{num:3,nome:'Articulação Pública',status:'Em andamento',tarefas:[{id:107,nome:'Reunião com Prefeitura',resp:'Márcia',col:'Em Sprint',prior:'Alta'},{id:108,nome:'Articulação com Câmara Municipal',resp:'Márcia',col:'Backlog',prior:'Alta'},{id:110,nome:'Apresentação ao Conselho',resp:'Márcia',col:'Em Revisão',prior:'Alta'}]}]},
+  {id:2,nome:'Parque Tecnológico Aliança Agro',owner:'Márcia',status:'Planejamento',prioridade:'Alta',progresso:12,prazo:'2027-12-31',descricao:'Hub de inovação focado em agrotech e bioeconomia.',sprint_atual:'Sprint 1',sprints:[{num:1,nome:'Concepção e Viabilidade',status:'Em andamento',tarefas:[{id:201,nome:'Diagnóstico ecossistema agrotech',resp:'Fabiane',col:'Em Sprint',prior:'Alta'},{id:202,nome:'Benchmark parques agro',resp:'Fabiane',col:'Em Revisão',prior:'Alta'},{id:205,nome:'Mapeamento parceiros âncora',resp:'Fernando',col:'Em Sprint',prior:'Alta'}]}]},
+  {id:3,nome:'Escritório de Projetos / Editais',owner:'Fabiane',status:'Em andamento',prioridade:'Alta',progresso:30,prazo:'2026-06-30',descricao:'Captação de recursos externos. Meta: R$250k.',sprint_atual:'Sprint 2',sprints:[{num:2,nome:'Mapeamento e Submissão',status:'Em andamento',tarefas:[{id:304,nome:'Mapeamento FINEP',resp:'Fabiane',col:'Em Sprint',prior:'Alta'},{id:305,nome:'Mapeamento FAPERS',resp:'Fabiane',col:'Em Sprint',prior:'Alta'},{id:308,nome:'Portfólio de projetos',resp:'Fabiane',col:'Em Revisão',prior:'Alta'}]}]},
+  {id:4,nome:'Innovabillity — ESG',owner:'Fabiane',status:'Planejamento',prioridade:'Alta',progresso:15,prazo:'2026-09-30',descricao:'Hub de descarbonização e ESG.',sprint_atual:'Sprint 1',sprints:[{num:1,nome:'Concepção',status:'Em andamento',tarefas:[{id:401,nome:'Modelo Innovabillity',resp:'Fabiane',col:'Em Sprint',prior:'Alta'},{id:402,nome:'Parceiros ESG',resp:'Fernando',col:'Em Sprint',prior:'Alta'}]}]},
+  {id:5,nome:'Fundo de Investimento Local',owner:'Márcia',status:'Monitoramento',prioridade:'Alta',progresso:85,prazo:'2026-12-31',descricao:'Atingir R$16M em capital investido.',sprint_atual:'Sprint 4',sprints:[{num:4,nome:'Expansão do Fundo',status:'Em andamento',tarefas:[{id:501,nome:'Invest Talk Q2',resp:'Márcia',col:'Em Sprint',prior:'Alta'},{id:503,nome:'Relatório para Conselho',resp:'Iasmin',col:'Em Revisão',prior:'Alta'},{id:504,nome:'Meta R$16M',resp:'Márcia',col:'Em Sprint',prior:'Alta'}]}]},
+  {id:6,nome:'Aliança AI',owner:'Fernando',status:'Planejamento',prioridade:'Média',progresso:5,prazo:'2026-10-31',descricao:'Programa de adoção de IA no ecossistema.',sprint_atual:'Sprint 1',sprints:[{num:1,nome:'Diagnóstico',status:'Em andamento',tarefas:[{id:601,nome:'Diagnóstico maturidade digital',resp:'Fabiane',col:'Em Sprint',prior:'Alta'},{id:602,nome:'Currículo Aliança AI',resp:'Fabiane',col:'Backlog',prior:'Alta'}]}]},
+];
+save();
+
+let projetoKanban=null;
+function renderProjetos(){
+  document.getElementById('projetos-content').innerHTML=`<div style="display:grid;gap:14px">${S.projetos_agil.map(p=>{
+    const sc={'Em andamento':'#2196F3','Planejamento':'#9C27B0','Monitoramento':'#F5C518','Concluído':'#4CAF50','Pausado':'#F44336'}[p.status]||'#666';
+    const allT=p.sprints.flatMap(s=>s.tarefas);const doneT=allT.filter(t=>t.col==='Concluído').length;const isOpen=projetoKanban===p.id;
+    return`<div style="background:var(--card);border:1px solid ${isOpen?'#F5C51866':'var(--border)'};border-left:4px solid ${p.prioridade==='Alta'?'#F5C518':'var(--border2)'};border-radius:12px;overflow:hidden">
+      <div style="padding:18px 22px;display:flex;align-items:flex-start;gap:14px;cursor:pointer" onclick="toggleKanban(${p.id})">
+        <div style="flex:1"><div style="font-size:15px;font-weight:700;margin-bottom:5px">${p.nome}</div><div style="font-size:12px;color:var(--dim);margin-bottom:8px">${p.descricao}</div><div style="display:flex;gap:8px;flex-wrap:wrap"><span class="pill" style="background:${sc}22;color:${sc}">${p.status}</span><span style="font-size:11px;color:var(--muted)">👤 ${p.owner} · 📅 ${p.prazo}</span></div></div>
+        <div style="text-align:right"><div style="font-size:22px;font-weight:900;color:${sc};font-family:monospace">${p.progresso}%</div><div style="font-size:10px;color:var(--muted)">${doneT}/${allT.length} tarefas</div><div style="display:flex;gap:5px;margin-top:6px"><button onclick="event.stopPropagation();editProjetoAgil(${p.id})" class="btn btn-ghost btn-sm">✎</button><button onclick="event.stopPropagation();delProjetoAgil(${p.id})" class="btn btn-danger btn-sm">✕</button></div></div>
+      </div>
+      ${isOpen?renderKanbanBoard(p):''}
+    </div>`;}).join('')}</div><button class="btn btn-ghost" onclick="openModal('projeto_agil')" style="margin-top:14px;width:100%;padding:12px">+ Novo Projeto</button>`;
+}
+function renderKanbanBoard(p){
+  const allTarefas=p.sprints.flatMap(s=>s.tarefas.map(t=>({...t,sprint:s.num})));
+  return`<div style="border-top:1px solid var(--border);padding:18px 22px"><div class="slabel">KANBAN</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;min-height:200px">${KANBAN_COLS.map(col=>{
+    const tasks=allTarefas.filter(t=>t.col===col);const cor=KANBAN_COR[col]||'#666';
+    return`<div style="background:var(--surface);border:1px solid var(--border);border-top:3px solid ${cor};border-radius:8px;padding:10px"><div style="display:flex;justify-content:space-between;margin-bottom:10px"><span style="font-size:10px;font-family:monospace;color:${cor}">${col.toUpperCase()}</span><span style="background:${cor}22;color:${cor};border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700">${tasks.length}</span></div>${tasks.map(t=>`<div style="background:var(--card);border:1px solid var(--border2);border-radius:7px;padding:9px 10px;margin-bottom:7px;cursor:pointer" onclick="moverTarefa(${p.id},${t.id},'${col}')"><div style="font-size:11px;color:var(--text);margin-bottom:5px">${t.nome}</div><div style="display:flex;justify-content:space-between"><span style="font-size:10px;color:var(--muted)">S${t.sprint}</span><span style="font-size:9px;color:var(--muted)">${t.resp}</span></div></div>`).join('')}<button onclick="addTarefaKanban(${p.id},'${col}')" style="width:100%;background:none;border:1px dashed var(--border2);border-radius:6px;padding:6px;color:var(--muted);cursor:pointer;font-size:11px;margin-top:4px">+</button></div>`;}).join('')}</div></div>`;
+}
+function toggleKanban(id){projetoKanban=projetoKanban===id?null:id;renderProjetos();}
+function moverTarefa(projetoId,tarefaId,colAtual){const cols=KANBAN_COLS;const idx=cols.indexOf(colAtual);const novaCol=cols[(idx+1)%cols.length];S.projetos_agil=S.projetos_agil.map(p=>{if(p.id!==projetoId)return p;const sprints=p.sprints.map(s=>({...s,tarefas:s.tarefas.map(t=>t.id===tarefaId?{...t,col:novaCol}:t)}));const allT=sprints.flatMap(s=>s.tarefas);const prog=Math.round(allT.filter(t=>t.col==='Concluído').length/allT.length*100);return{...p,sprints,progresso:prog};});save();renderProjetos();}
+function addTarefaKanban(projetoId,col){const nome=prompt('Nome da tarefa:');if(!nome)return;const resp=prompt('Responsável:','Márcia');S.projetos_agil=S.projetos_agil.map(p=>{if(p.id!==projetoId)return p;const sprintAtivo=p.sprints.find(s=>s.status==='Em andamento')||p.sprints[p.sprints.length-1];const sprints=p.sprints.map(s=>s.num===sprintAtivo.num?{...s,tarefas:[...s.tarefas,{id:Date.now(),nome,resp:resp||'',col,prior:'Alta'}]}:s);return{...p,sprints};});save();renderProjetos();}
+function editProjetoAgil(id){const p=S.projetos_agil.find(x=>x.id===id);if(!p)return;openModalWith('Editar Projeto',`<div class="form-group"><label class="form-label">NOME</label><input class="form-input" id="fp-nome" value="${p.nome.replace(/"/g,'&quot;')}"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label class="form-label">STATUS</label><select class="form-select" id="fp-status">${['Planejamento','Em andamento','Monitoramento','Concluído','Pausado'].map(s=>`<option${s===p.status?' selected':''}>${s}</option>`).join('')}</select></div><div class="form-group"><label class="form-label">PRIORIDADE</label><select class="form-select" id="fp-prio">${['Alta','Média','Baixa'].map(s=>`<option${s===p.prioridade?' selected':''}>${s}</option>`).join('')}</select></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label class="form-label">OWNER</label><input class="form-input" id="fp-owner" value="${p.owner}"></div><div class="form-group"><label class="form-label">PRAZO</label><input class="form-input" type="date" id="fp-prazo" value="${p.prazo}"></div></div><div class="form-group"><label class="form-label">SPRINT</label><input class="form-input" id="fp-sprint" value="${p.sprint_atual||''}"></div><div class="form-group"><label class="form-label">DESCRIÇÃO</label><textarea class="form-textarea" id="fp-desc">${p.descricao}</textarea></div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProjetoAgil(${id})">Salvar</button></div>`);}
+function saveProjetoAgil(id){const nome=document.getElementById('fp-nome').value;if(!nome)return;if(id){S.projetos_agil=S.projetos_agil.map(p=>p.id===id?{...p,nome,status:document.getElementById('fp-status').value,prioridade:document.getElementById('fp-prio').value,owner:document.getElementById('fp-owner').value,prazo:document.getElementById('fp-prazo').value,sprint_atual:document.getElementById('fp-sprint').value,descricao:document.getElementById('fp-desc').value}:p);}else{S.projetos_agil.push({id:Date.now(),nome,status:document.getElementById('fp-status').value,prioridade:document.getElementById('fp-prio').value,owner:document.getElementById('fp-owner').value,prazo:document.getElementById('fp-prazo').value,sprint_atual:document.getElementById('fp-sprint').value,descricao:document.getElementById('fp-desc').value,progresso:0,sprints:[{num:1,nome:'Sprint 1',status:'Em andamento',tarefas:[]}]});}save();closeModal();renderProjetos();}
+function delProjetoAgil(id){if(confirm('Excluir projeto?')){S.projetos_agil=S.projetos_agil.filter(p=>p.id!==id);save();renderProjetos();}}
+
+// ═══════════════════════════════════════════════════════
+// RISCOS
+// ═══════════════════════════════════════════════════════
+function renderRiscos(){
+  const riscos=[{label:'Captação Externa 2026',atual:0,meta:250000,un:'R$',icon:'💰',impacto:'CRÍTICO',acao:'Fabiane submeter editais FINEP e FAPERS.',resp:'Fabiane + Fernando'},{label:'Negócios no Ecossistema',atual:0,meta:40,un:'',icon:'🤝',impacto:'CRÍTICO',acao:'Fernando ativar programa de conexões semanais.',resp:'Fernando'},{label:'Eventos 2026',atual:18,meta:60,un:'',icon:'🎪',impacto:'ALTO',acao:'Garantir 4 eventos por mês a partir de maio.',resp:'Fabiane'},{label:'Talentos Formados',atual:21,meta:250,un:'',icon:'🎓',impacto:'ALTO',acao:'Lançar turmas Moinho de Talentos.',resp:'Fabiane'},{label:'NPS',atual:87,meta:90,un:'%',icon:'📊',impacto:'MÉDIO',acao:'Retomar NPS mensal.',resp:'Iasmin'},{label:'Associados',atual:35,meta:44,un:'',icon:'🏢',impacto:'MÉDIO',acao:'Fernando: 9 novas associações.',resp:'Fernando'}];
+  const impactoCor={'CRÍTICO':'#F44336','ALTO':'#FF9800','MÉDIO':'#F5C518'};
+  document.getElementById('riscos-content').innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">${[['🔴 Críticos',riscos.filter(r=>r.impacto==='CRÍTICO').length,'#F44336'],['🟠 Altos',riscos.filter(r=>r.impacto==='ALTO').length,'#FF9800'],['🟡 Médios',riscos.filter(r=>r.impacto==='MÉDIO').length,'#F5C518']].map(([l,v,c])=>`<div class="card" style="text-align:center;border-color:${c}44"><div style="font-size:28px;font-weight:900;color:${c};font-family:monospace">${v}</div><div style="font-size:12px;color:var(--muted)">${l}</div></div>`).join('')}</div>
+  <div style="display:grid;gap:12px">${riscos.map(r=>{const p2=Math.min(100,Math.round(r.atual/r.meta*100));const ic=impactoCor[r.impacto];const fv=v=>r.un==='R$'&&v>=1000?'R$'+(v/1000).toFixed(0)+'k':r.un==='%'?v+'%':String(v);return`<div class="card" style="border-left:4px solid ${ic}"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px"><div style="flex:1"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="font-size:18px">${r.icon}</span><span style="font-size:14px;font-weight:700">${r.label}</span><span class="pill" style="background:${ic}22;color:${ic}">${r.impacto}</span></div><div style="font-size:12px;color:#FF8A80;background:#F4433612;border-radius:6px;padding:7px 10px">⚡ ${r.acao}</div></div><div style="text-align:right"><div style="font-size:22px;font-weight:900;color:${p2>=80?'#4CAF50':'#F44336'};font-family:monospace">${p2}%</div><div style="font-size:11px;color:var(--muted)">${fv(r.atual)}/${fv(r.meta)}</div></div></div><div class="bar-track" style="height:6px"><div class="bar-fill" style="width:${p2}%;background:${p2>=80?'#4CAF50':'#F44336'}"></div></div></div>`;}).join('')}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// CONSELHO
+// ═══════════════════════════════════════════════════════
+const CONSELHEIROS=[{nome:'José Luis Turmina',empresa:'Oniz',papel:'Presidente',tipo:'Conselho'},{nome:'Eduardo Capellari',empresa:'Atitus',papel:'Vice-Presidente',tipo:'Conselho'},{nome:'Antônio Roso',empresa:'Metasa',papel:'Vice-Presidente',tipo:'Conselho'},{nome:'Erasmo Battistella',empresa:'Be8',papel:'Vice-Presidente',tipo:'Conselho'},{nome:'Matheus Stefanello',empresa:'Coprel',papel:'Vice-Presidente',tipo:'Conselho'},{nome:'Nei Mânica',empresa:'Cotrijal',papel:'Vice-Presidente',tipo:'Conselho'},{nome:'Pedro Brair',empresa:'Farmácias São João',papel:'Vice-Presidente',tipo:'Conselho'}];
+if(!S.contatos_conselho)S.contatos_conselho=[];
+function renderConselho(){
+  document.getElementById('conselho-content').innerHTML=`<div class="card" style="margin-bottom:14px"><div class="slabel">CONSELHO DE GOVERNANÇA</div>${CONSELHEIROS.map(c=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)"><div><div style="font-size:13px;font-weight:700">${c.nome}</div><div style="font-size:11px;color:var(--muted)">${c.empresa} · ${c.papel}</div></div><span class="pill" style="background:#F5C51822;color:#F5C518;font-size:10px">${c.tipo}</span></div>`).join('')}</div>
+  <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div class="slabel" style="margin-bottom:0">HISTÓRICO DE CONTATOS</div><button class="btn btn-ghost btn-sm" onclick="openModal('contato')">+ Registrar</button></div>${S.contatos_conselho.length?S.contatos_conselho.sort((a,b)=>b.data.localeCompare(a.data)).map(c=>`<div style="padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:8px"><div style="display:flex;gap:8px;margin-bottom:4px"><span style="font-size:13px;font-weight:700">${c.conselheiro}</span><span style="font-size:11px;color:var(--muted)">${c.data}</span></div><div style="font-size:12px;color:var(--dim)">${c.descricao}</div><button onclick="delContato(${c.id})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;float:right;margin-top:-20px">✕</button></div>`).join(''):'<div class="empty-state" style="padding:24px 0">Nenhum contato registrado.</div>'}</div>`;
+}
+function delContato(id){S.contatos_conselho=S.contatos_conselho.filter(c=>c.id!==id);save();renderConselho();}
+function saveContato(){const desc=document.getElementById('fc-desc').value;if(!desc)return;S.contatos_conselho.push({id:Date.now(),conselheiro:document.getElementById('fc-cons').value,tipo:document.getElementById('fc-tipo').value,data:document.getElementById('fc-data').value||new Date().toISOString().split('T')[0],descricao:desc,encaminhamento:document.getElementById('fc-enc').value});save();closeModal();renderConselho();}
+
+// ═══════════════════════════════════════════════════════
+// EVENTOS
+// ═══════════════════════════════════════════════════════
+if(!S.eventos)S.eventos=[{id:1,nome:'Hackathon 2026 — 1ª edição',data:'2026-06-14',tipo:'Programa',status:'Planejamento',responsavel:'Fabiane',orcamento:40000,local:'Hub Aliança'},{id:4,nome:'South Summit Brasil',data:'2026-05-01',tipo:'Representação',status:'Confirmado',responsavel:'Márcia',orcamento:10000,local:'Porto Alegre'},{id:5,nome:'Meetup de Inovação — Maio',data:'2026-05-20',tipo:'Networking',status:'Confirmado',responsavel:'Fabiane',orcamento:5000,local:'Hub Aliança'},{id:10,nome:'Expodireto Arena',data:'2026-03-10',tipo:'Agro',status:'Realizado',responsavel:'Márcia',orcamento:10000,local:'Não-Me-Toque'},{id:14,nome:'Hackathon Aliança Agro',data:'2026-11-15',tipo:'Agro',status:'Backlog',responsavel:'Márcia',orcamento:30000,local:'Hub Aliança'}];
+save();
+const STATUS_EV_COR={'Realizado':'#4CAF50','Confirmado':'#2196F3','Planejamento':'#FF9800','Backlog':'#666','Cancelado':'#F44336'};
+function renderEventos(){
+  const real=S.eventos.filter(e=>e.status==='Realizado').length;
+  document.getElementById('eventos-content').innerHTML=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">${[[real,'Realizados','#4CAF50','✅'],[S.eventos.filter(e=>e.status==='Confirmado').length,'Confirmados','#2196F3','📌'],[S.eventos.filter(e=>e.status==='Planejamento').length,'Planejamento','#FF9800','📋'],[S.eventos.length,'Total (meta 60)','#F5C518','🎪']].map(([v,l,c,i])=>`<div class="card"><div style="font-size:20px;margin-bottom:6px">${i}</div><div style="font-size:26px;font-weight:900;color:${c};font-family:monospace">${v}</div><div style="font-size:11px;color:var(--muted)">${l}</div></div>`).join('')}</div>
+  <div class="card"><div class="slabel">EVENTOS 2026</div>${S.eventos.sort((a,b)=>a.data.localeCompare(b.data)).map(e=>{const sc=STATUS_EV_COR[e.status]||'#666';return`<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:8px"><div style="flex:1"><div style="font-size:13px;font-weight:700">${e.nome}</div><div style="font-size:11px;color:var(--muted)">${e.data} · ${e.responsavel} · R$${(e.orcamento/1000).toFixed(0)}k</div></div><select onchange="setEventoStatus(${e.id},this.value)" style="background:${sc}22;color:${sc};border:1px solid ${sc}44;border-radius:6px;padding:3px 7px;font-size:10px;cursor:pointer;outline:none">${Object.keys(STATUS_EV_COR).map(s=>`<option value="${s}"${s===e.status?' selected':''}>${s}</option>`).join('')}</select><button onclick="delEvento(${e.id})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px">✕</button></div>`;}).join('')}</div>`;
+}
+function setEventoStatus(id,status){S.eventos=S.eventos.map(e=>e.id===id?{...e,status}:e);save();renderEventos();}
+function delEvento(id){S.eventos=S.eventos.filter(e=>e.id!==id);save();renderEventos();}
+function saveEvento(){const nome=document.getElementById('fev-nome').value;if(!nome)return;S.eventos.push({id:Date.now(),nome,data:document.getElementById('fev-data').value,tipo:document.getElementById('fev-tipo').value,status:'Planejamento',responsavel:document.getElementById('fev-resp').value,orcamento:parseFloat(document.getElementById('fev-orc').value)||0,local:document.getElementById('fev-local').value});save();closeModal();renderEventos();}
+
+// ═══════════════════════════════════════════════════════
+// CAPTAÇÃO
+// ═══════════════════════════════════════════════════════
+if(!S.captacao_funil)S.captacao_funil=[{id:1,nome:'FINEP — Inovação Tecnológica',tipo:'Edital',status:'Identificado',valor:150000,prazo:'2026-06-30',resp:'Fabiane',obs:''},{id:2,nome:'FAPERS — Pesquisa Aplicada RS',tipo:'Edital',status:'Em Elaboração',valor:80000,prazo:'2026-05-15',resp:'Fabiane',obs:''},{id:3,nome:'SEBRAE RS — Apoio a Hubs',tipo:'Edital',status:'Identificado',valor:50000,prazo:'2026-07-01',resp:'Fabiane',obs:''},{id:4,nome:'Patrocínio Hackathon',tipo:'Patrocínio',status:'Em Negociação',valor:20000,prazo:'2026-05-01',resp:'Fernando',obs:''}];
+save();
+const CAPTACAO_ETAPAS=['Identificado','Em Elaboração','Submetido','Em Negociação','Aprovado','Captado','Reprovado'];
+const CAPTACAO_COR={'Identificado':'#666','Em Elaboração':'#9C27B0','Submetido':'#2196F3','Em Negociação':'#FF9800','Aprovado':'#4CAF50','Captado':'#00BCD4','Reprovado':'#F44336'};
+function renderCaptacao(){
+  const captado=S.captacao_funil.filter(c=>c.status==='Captado').reduce((a,c)=>a+c.valor,0);const pipeline=S.captacao_funil.filter(c=>!['Captado','Reprovado'].includes(c.status)).reduce((a,c)=>a+c.valor,0);
+  document.getElementById('captacao-content').innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px"><div class="card" style="border-color:#4CAF5044"><div style="font-size:20px;margin-bottom:6px">✅</div><div style="font-size:22px;font-weight:900;color:#4CAF50;font-family:monospace">R$${(captado/1000).toFixed(0)}k</div><div style="font-size:11px;color:var(--muted)">Captado</div></div><div class="card" style="border-color:#2196F344"><div style="font-size:20px;margin-bottom:6px">🔄</div><div style="font-size:22px;font-weight:900;color:#2196F3;font-family:monospace">R$${(pipeline/1000).toFixed(0)}k</div><div style="font-size:11px;color:var(--muted)">Pipeline</div></div><div class="card" style="border-color:#F4433644"><div style="font-size:20px;margin-bottom:6px">🎯</div><div style="font-size:22px;font-weight:900;color:#F44336;font-family:monospace">R$${((250000-captado)/1000).toFixed(0)}k</div><div style="font-size:11px;color:var(--muted)">Gap meta R$250k</div></div></div>
+  <div class="card"><div class="slabel">OPORTUNIDADES</div>${S.captacao_funil.map(c=>{const sc=CAPTACAO_COR[c.status]||'#666';return`<div style="display:flex;align-items:center;gap:14px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:9px;margin-bottom:8px"><div style="flex:1"><div style="font-size:13px;font-weight:700">${c.nome}</div><div style="font-size:11px;color:var(--muted)">${c.tipo} · ${c.resp}${c.prazo?' · '+c.prazo:''}</div></div><div style="font-size:16px;font-weight:900;color:#F5C518;font-family:monospace">R$${(c.valor/1000).toFixed(0)}k</div><select onchange="setCaptacaoStatus(${c.id},this.value)" style="background:${sc}22;color:${sc};border:1px solid ${sc}44;border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer;outline:none">${CAPTACAO_ETAPAS.map(e=>`<option value="${e}"${e===c.status?' selected':''}>${e}</option>`).join('')}</select><button onclick="delCaptacao(${c.id})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">✕</button></div>`;}).join('')}</div>`;
+}
+function setCaptacaoStatus(id,status){S.captacao_funil=S.captacao_funil.map(c=>c.id===id?{...c,status}:c);save();renderCaptacao();}
+function delCaptacao(id){S.captacao_funil=S.captacao_funil.filter(c=>c.id!==id);save();renderCaptacao();}
+function saveCaptacaoItem(){const nome=document.getElementById('fcp-nome').value;if(!nome)return;S.captacao_funil.push({id:Date.now(),nome,tipo:document.getElementById('fcp-tipo').value,status:'Identificado',valor:parseFloat(document.getElementById('fcp-valor').value)||0,prazo:document.getElementById('fcp-prazo').value,resp:document.getElementById('fcp-resp').value,obs:document.getElementById('fcp-obs').value});save();closeModal();renderCaptacao();}
+
+// ═══════════════════════════════════════════════════════
+// COCKPIT
+// ═══════════════════════════════════════════════════════
+if(!S.cockpit)S.cockpit=[];
+const TEMPO_CATS=['Liderança Estratégica','Relação Externa','Captação e Parcerias','Operação Interna','Representação','Desenvolvimento'];
+const TEMPO_CORS={'Liderança Estratégica':'#F5C518','Relação Externa':'#2196F3','Captação e Parcerias':'#4CAF50','Operação Interna':'#F44336','Representação':'#9C27B0','Desenvolvimento':'#FF9800'};
+function getWeekStr2(d){const jan4=new Date(d.getFullYear(),0,4);const w=Math.ceil(((d-jan4)/86400000+jan4.getDay()+1)/7);return`${d.getFullYear()}-W${String(w).padStart(2,'0')}`;}
+function renderCockpit(){
+  const cw=getWeekStr2(new Date());const dadosSemana=S.cockpit.filter(c=>c.semana===cw);const totalH=dadosSemana.reduce((a,c)=>a+c.horas,0);const lidH=dadosSemana.filter(c=>c.cat!=='Operação Interna').reduce((a,c)=>a+c.horas,0);const liderPct=totalH?Math.round(lidH/totalH*100):0;
+  document.getElementById('cockpit-content').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+    <div class="card"><div class="slabel">SEMANA ${cw}</div><div style="font-size:30px;font-weight:900;color:${liderPct>=70?'#4CAF50':'#F44336'};font-family:monospace;margin-bottom:8px">${liderPct}% Liderança</div><div style="font-size:13px;margin-bottom:14px">${totalH}h registradas</div>${TEMPO_CATS.map(cat=>{const hCat=dadosSemana.filter(c=>c.cat===cat).reduce((a,c)=>a+c.horas,0);const pp=totalH?Math.round(hCat/totalH*100):0;const cor=TEMPO_CORS[cat]||'#666';return`<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span style="color:var(--dim)">${cat}</span><span style="color:${cor};font-family:monospace">${hCat}h</span></div><div class="bar-track" style="height:5px"><div class="bar-fill" style="width:${pp}%;background:${cor}"></div></div></div>`;}).join('')}</div>
+    <div class="card"><div class="slabel">REGISTRAR TEMPO</div><div class="form-group"><label class="form-label">CATEGORIA</label><select class="form-select" id="ck-cat">${TEMPO_CATS.map(c=>`<option>${c}</option>`).join('')}</select></div><div class="form-group"><label class="form-label">HORAS</label><input class="form-input" type="number" id="ck-h" min="0.5" step="0.5" value="1"></div><div class="form-group"><label class="form-label">DESCRIÇÃO</label><input class="form-input" id="ck-desc" placeholder="O que fiz?"></div><button class="btn btn-primary" onclick="saveTempo()" style="width:100%">Registrar</button></div></div>`;
+}
+function saveTempo(){const cat=document.getElementById('ck-cat').value,h=parseFloat(document.getElementById('ck-h').value),desc=document.getElementById('ck-desc').value;if(!h||h<=0)return;S.cockpit.push({id:Date.now(),semana:getWeekStr2(new Date()),cat,horas:h,desc:desc||cat});save();renderCockpit();}
+
+// ═══════════════════════════════════════════════════════
+// MODAL ROUTER
+// ═══════════════════════════════════════════════════════
+function openModal(type){
+  if(type==='ata'){openAtaModal();return;}
+  if(type==='contato'){openModalWith('Registrar Contato',`<div class="form-group"><label class="form-label">CONSELHEIRO</label><select class="form-select" id="fc-cons">${CONSELHEIROS.map(c=>`<option>${c.nome}</option>`).join('')}</select></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label class="form-label">TIPO</label><select class="form-select" id="fc-tipo"><option>Reunião</option><option>Ligação</option><option>E-mail</option></select></div><div class="form-group"><label class="form-label">DATA</label><input class="form-input" type="date" id="fc-data" value="${new Date().toISOString().split('T')[0]}"></div></div><div class="form-group"><label class="form-label">DESCRIÇÃO</label><textarea class="form-textarea" id="fc-desc"></textarea></div><div class="form-group"><label class="form-label">ENCAMINHAMENTO</label><input class="form-input" id="fc-enc"></div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveContato()">Registrar</button></div>`);return;}
+  if(type==='evento'){openModalWith('Novo Evento',`<div class="form-group"><label class="form-label">NOME</label><input class="form-input" id="fev-nome"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label class="form-label">DATA</label><input class="form-input" type="date" id="fev-data"></div><div class="form-group"><label class="form-label">TIPO</label><select class="form-select" id="fev-tipo"><option>Programa</option><option>Networking</option><option>Cultura</option><option>Capital</option><option>Startups</option><option>Agro</option><option>Representação</option></select></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label class="form-label">ORÇAMENTO (R$)</label><input class="form-input" type="number" id="fev-orc" value="0"></div><div class="form-group"><label class="form-label">RESPONSÁVEL</label><input class="form-input" id="fev-resp" value="Márcia"></div></div><div class="form-group"><label class="form-label">LOCAL</label><input class="form-input" id="fev-local" value="Hub Aliança"></div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveEvento()">Adicionar</button></div>`);return;}
+  if(type==='captacao_item'){openModalWith('Nova Oportunidade',`<div class="form-group"><label class="form-label">NOME</label><input class="form-input" id="fcp-nome"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label class="form-label">TIPO</label><select class="form-select" id="fcp-tipo"><option>Edital</option><option>Patrocínio</option><option>Doação</option></select></div><div class="form-group"><label class="form-label">VALOR (R$)</label><input class="form-input" type="number" id="fcp-valor" value="0"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label class="form-label">PRAZO</label><input class="form-input" type="date" id="fcp-prazo"></div><div class="form-group"><label class="form-label">RESPONSÁVEL</label><input class="form-input" id="fcp-resp" value="Fabiane"></div></div><div class="form-group"><label class="form-label">OBS</label><input class="form-input" id="fcp-obs"></div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveCaptacaoItem()">Adicionar</button></div>`);return;}
+  if(type==='projeto_agil'){openModalWith('Novo Projeto',`<div class="form-group"><label class="form-label">NOME</label><input class="form-input" id="fp-nome"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label class="form-label">STATUS</label><select class="form-select" id="fp-status"><option>Planejamento</option><option>Em andamento</option><option>Monitoramento</option><option>Concluído</option></select></div><div class="form-group"><label class="form-label">PRIORIDADE</label><select class="form-select" id="fp-prio"><option>Alta</option><option>Média</option><option>Baixa</option></select></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label class="form-label">OWNER</label><input class="form-input" id="fp-owner" value="Márcia"></div><div class="form-group"><label class="form-label">PRAZO</label><input class="form-input" type="date" id="fp-prazo"></div></div><div class="form-group"><label class="form-label">SPRINT</label><input class="form-input" id="fp-sprint" placeholder="Sprint 1"></div><div class="form-group"><label class="form-label">DESCRIÇÃO</label><textarea class="form-textarea" id="fp-desc"></textarea></div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveProjetoAgil(0)">Criar</button></div>`);return;}
+  openModalBase(type);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+load();
+renderDashboard();
+updateSidebar();
+</script>
+</body>
+</html>
