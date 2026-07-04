@@ -13,8 +13,12 @@ Depois de instalar, o Claude Desktop passa a ter estas ferramentas:
 | `cadastrar_habito` | 1ª (Óbvio) + 2ª (Atraente) | Registra hábito com gatilho + local + horário + empilhamento |
 | `checkin_diario` | 3ª (Fácil) | Marca hoje como ✅ ou ❌ com uma nota curta |
 | `ver_progresso` | 4ª (Satisfatório) | Streak, taxa de cumprimento, reforço positivo |
+| `sugerir_recompensa` | 4ª (Satisfatório) | 3 sugestões alinhadas à identidade (nada que sabote) |
+| `historico_habito` | Análise | Calendário 🟩🟥⬜ dos últimos 14 dias + notas |
+| `exportar_relatorio_semanal` | Coach | Markdown pronto pra colar no Notion/WhatsApp |
 | `sessao_coach` | Metodologia | 5 perguntas socráticas pra provocar reflexão |
 | `listar_mentoradas` | — | Lista todas as mentoradas cadastradas |
+| `remover_habito` | Housekeeping | Deleta um hábito |
 
 ## 1) Instalar no seu Mac
 
