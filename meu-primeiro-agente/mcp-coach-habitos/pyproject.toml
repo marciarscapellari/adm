@@ -1,0 +1,12 @@
+[project]
+name = "coach-habitos-atomicos"
+version = "0.1.0"
+description = "MCP para coach de mentoradas usando o método James Clear"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.2.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
