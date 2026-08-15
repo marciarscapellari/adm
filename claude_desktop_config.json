@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "adm": {
+      "command": "python",
+      "args": ["-m", "fastmcp", "run", "server.py"],
+      "env": {
+        "ANTHROPIC_API_KEY": "tuachaveaqui"
+      }
+    }
+  }
+}
